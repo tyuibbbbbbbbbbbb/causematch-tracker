@@ -326,6 +326,39 @@
         .btn-copy { background: #1565c0; color: #fff; }
         .btn-send { background: #e65100; color: #fff; }
 
+        /* Donate section */
+        .donate-section {
+            background: rgba(46,125,50,0.1); border: 1px solid rgba(76,175,80,0.3);
+            border-radius: 12px; padding: 15px; margin-top: 15px;
+        }
+        .donate-section h3 { color: #81c784; font-size: 0.95em; margin-bottom: 10px; }
+        .donate-row { display: flex; gap: 10px; align-items: center; }
+        .donate-row input {
+            flex: 1; padding: 12px 14px; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.05); color: #fff;
+            font-size: 1.1em; outline: none; text-align: center;
+        }
+        .donate-row input:focus { border-color: #81c784; }
+        .donate-row button {
+            padding: 12px 24px; border-radius: 10px; border: none;
+            background: linear-gradient(135deg, #2e7d32, #43a047); color: #fff;
+            font-weight: bold; cursor: pointer; font-size: 1em; white-space: nowrap;
+            transition: transform 0.2s;
+        }
+        .donate-row button:hover { transform: scale(1.03); }
+        .fr-page-link {
+            display: block; text-align: center; margin-top: 10px;
+            color: #4fc3f7; font-size: 0.85em; text-decoration: none;
+        }
+        .fr-page-link:hover { text-decoration: underline; }
+        .email-status {
+            font-size: 0.85em; margin-top: 8px; padding: 6px 12px;
+            border-radius: 8px; display: none;
+        }
+        .email-status.success { display: block; background: rgba(76,175,80,0.15); color: #81c784; }
+        .email-status.error { display: block; background: rgba(239,83,80,0.15); color: #ef5350; }
+
         /* ===== DONATION HISTORY ===== */
         .history-section {
             background: rgba(255,255,255,0.06);
@@ -541,26 +574,36 @@
                 <h2 id="modalName">---</h2>
                 <div class="modal-sub" id="modalSub"></div>
                 <div class="modal-stats">
-                    <div class="modal-stat"><div class="ms-val" id="modalAmount">---</div><div class="ms-lbl">&#1505;&#1499;&#1493;&#1501; &#1513;&#1490;&#1493;&#1497;&#1505;</div></div>
-                    <div class="modal-stat"><div class="ms-val" id="modalDonors">---</div><div class="ms-lbl">&#1514;&#1493;&#1512;&#1502;&#1497;&#1501;</div></div>
-                    <div class="modal-stat"><div class="ms-val" id="modalGoal">---</div><div class="ms-lbl">&#1497;&#1506;&#1491;</div></div>
+                    <div class="modal-stat"><div class="ms-val" id="modalAmount">---</div><div class="ms-lbl">סכום שגויס</div></div>
+                    <div class="modal-stat"><div class="ms-val" id="modalDonors">---</div><div class="ms-lbl">תורמים</div></div>
+                    <div class="modal-stat"><div class="ms-val" id="modalGoal">---</div><div class="ms-lbl">יעד</div></div>
                 </div>
                 <div class="modal-progress">
                     <div class="mp-bar"><div class="mp-fill" id="modalFill"></div></div>
                     <div class="mp-text" id="modalProg"></div>
                 </div>
+
+                <!-- Donate with amount -->
+                <div class="donate-section">
+                    <h3>&#128176; תרום דרך המתרים הזה</h3>
+                    <div class="donate-row">
+                        <input type="number" id="donateAmount" placeholder="הכנס סכום..." min="1">
+                        <button onclick="goToDonate()">&#10145; לתרומה עכשיו</button>
+                    </div>
+                    <a class="fr-page-link" id="frPageLink" href="#" target="_blank">&#128279; פתח את דף המתרים באתר CauseMatch</a>
+                </div>
+
+                <!-- Send email -->
                 <div class="email-section">
-                    <h3>&#128231; &#1513;&#1500;&#1495; &#1500;&#1497;&#1504;&#1511; &#1490;&#1497;&#1493;&#1505; &#1489;&#1488;&#1497;&#1502;&#1497;&#1497;&#1500;</h3>
+                    <h3>&#128231; שלח לינק גיוס באימייל</h3>
                     <div class="email-row">
                         <input type="email" id="emailInput" placeholder="name@example.com" dir="ltr">
-                        <button onclick="generateEmail()">&#128228; &#1510;&#1493;&#1512; &#1488;&#1497;&#1502;&#1497;&#1497;&#1500;</button>
+                        <button onclick="sendEmail()">&#128228; שלח מייל</button>
                     </div>
+                    <div class="email-status" id="emailStatus"></div>
                     <div class="email-preview" id="emailPreview">
+                        <div style="font-size:0.8em;color:#888;margin-bottom:6px">תצוגה מקדימה של האימייל:</div>
                         <iframe id="emailFrame"></iframe>
-                        <div class="email-actions">
-                            <button class="btn-copy" onclick="copyEmail()">&#128203; &#1492;&#1506;&#1514;&#1511; HTML</button>
-                            <button class="btn-send" onclick="sendEmail()">&#128231; &#1508;&#1514;&#1495; &#1489;&#1502;&#1497;&#1497;&#1500;</button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -936,7 +979,10 @@
 
         // ========== MODAL + EMAIL ==========
         let currentFundraiser = null;
-        let lastEmailHtml = '';
+
+        function getFrUrl(f) {
+            return 'https://causematch.com/yth?team=' + (f.id || '');
+        }
 
         function openFundraiser(f) {
             currentFundraiser = f;
@@ -957,8 +1003,15 @@
             fillEl.style.width = Math.min(prog, 100) + '%';
             document.getElementById('modalProg').textContent = prog + '% מהיעד';
 
-            document.getElementById('emailPreview').style.display = 'none';
+            // Fundraiser page link
+            document.getElementById('frPageLink').href = getFrUrl(f);
+
+            // Reset
+            document.getElementById('donateAmount').value = '';
             document.getElementById('emailInput').value = '';
+            document.getElementById('emailStatus').className = 'email-status';
+            document.getElementById('emailStatus').textContent = '';
+            document.getElementById('emailPreview').style.display = 'none';
             document.getElementById('frModal').classList.add('open');
         }
 
@@ -971,6 +1024,15 @@
             if (e.target === document.getElementById('frModal')) closeModal();
         });
 
+        // Go to donate page with amount
+        function goToDonate() {
+            if (!currentFundraiser) return;
+            const amount = document.getElementById('donateAmount').value;
+            let url = getFrUrl(currentFundraiser);
+            if (amount && +amount > 0) url += '&amount=' + amount;
+            window.open(url, '_blank');
+        }
+
         function getTimeLeftText() {
             if (!campaignEndAt) return 'הקמפיין פעיל';
             const diff = new Date(campaignEndAt) - new Date();
@@ -981,9 +1043,7 @@
             return h + ' שעות ו-' + m + ' דקות';
         }
 
-        function generateEmail() {
-            if (!currentFundraiser) return;
-            const f = currentFundraiser;
+        function buildEmailHtml(f) {
             const s = f.statistics || {};
             const sym = currSymbol(f.currency || 'ILS');
             const campaignILS = prevData ? '₪' + fmt(prevData.totalProgress.amounts.ILS || 0) : '---';
@@ -993,9 +1053,9 @@
             const frProg = (s.progress || 0) + '%';
             const frName = f.name || 'ללא שם';
             const timeLeft = getTimeLeftText();
-            const siteUrl = 'https://causematch.com/yth';
+            const frUrl = getFrUrl(f);
 
-            lastEmailHtml = `<!DOCTYPE html>
+            return `<!DOCTYPE html>
 <html dir="rtl" lang="he">
 <head><meta charset="UTF-8"></head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:Arial,sans-serif">
@@ -1009,21 +1069,22 @@
       <div style="font-size:14px;color:#e65100">⏱ זמן שנותר לקמפיין</div>
       <div style="font-size:28px;font-weight:bold;color:#bf360c;margin:8px 0">${timeLeft}</div>
     </div>
-    <div style="display:flex;gap:12px;margin-bottom:20px">
-      <div style="flex:1;background:#e8f5e9;border-radius:12px;padding:15px;text-align:center">
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px"><tr>
+      <td width="48%" style="background:#e8f5e9;border-radius:12px;padding:15px;text-align:center">
         <div style="font-size:12px;color:#2e7d32">הישיבה גייסה</div>
         <div style="font-size:22px;font-weight:bold;color:#1b5e20;direction:ltr">${campaignILS}</div>
         <div style="font-size:11px;color:#4caf50">${campaignCount} תורמים</div>
-      </div>
-      <div style="flex:1;background:#e3f2fd;border-radius:12px;padding:15px;text-align:center">
+      </td>
+      <td width="4%"></td>
+      <td width="48%" style="background:#e3f2fd;border-radius:12px;padding:15px;text-align:center">
         <div style="font-size:12px;color:#1565c0">${frName} גייס</div>
         <div style="font-size:22px;font-weight:bold;color:#0d47a1;direction:ltr">${frAmount}</div>
         <div style="font-size:11px;color:#42a5f5">${frProg} מהיעד (${frGoal})</div>
-      </div>
-    </div>
+      </td>
+    </tr></table>
     <div style="background:#f5f5f5;border-radius:12px;padding:20px;text-align:center;margin-bottom:20px">
-      <div style="font-size:16px;color:#333;margin-bottom:12px">כל תרומה משנה! הצטרפו לקמפיין</div>
-      <a href="${siteUrl}" style="display:inline-block;padding:14px 40px;background:linear-gradient(135deg,#b88947,#e0c67f);color:#1a1a2e;text-decoration:none;border-radius:30px;font-weight:bold;font-size:16px">לתרומה עכשיו →</a>
+      <div style="font-size:16px;color:#333;margin-bottom:12px">כל תרומה משנה! תרמו דרך ${frName}</div>
+      <a href="${frUrl}" style="display:inline-block;padding:14px 40px;background:linear-gradient(135deg,#b88947,#e0c67f);color:#1a1a2e;text-decoration:none;border-radius:30px;font-weight:bold;font-size:16px">לתרומה דרך ${frName} →</a>
     </div>
     <div style="text-align:center;font-size:12px;color:#999;padding:10px 0;border-top:1px solid #eee">
       ${frName} | ${frAmount} | ${frProg} מהיעד
@@ -1031,35 +1092,47 @@
   </div>
 </div>
 </body></html>`;
-
-            const frame = document.getElementById('emailFrame');
-            frame.srcdoc = lastEmailHtml;
-            document.getElementById('emailPreview').style.display = 'block';
-        }
-
-        function copyEmail() {
-            if (!lastEmailHtml) return;
-            navigator.clipboard.writeText(lastEmailHtml).then(() => {
-                alert('HTML הועתק ללוח!');
-            });
         }
 
         function sendEmail() {
             if (!currentFundraiser) return;
-            const email = document.getElementById('emailInput').value;
+            const email = document.getElementById('emailInput').value.trim();
+            const statusEl = document.getElementById('emailStatus');
+            if (!email || !email.includes('@')) {
+                statusEl.className = 'email-status error';
+                statusEl.textContent = 'נא להזין כתובת אימייל תקינה';
+                return;
+            }
+
             const f = currentFundraiser;
             const s = f.statistics || {};
             const sym = currSymbol(f.currency || 'ILS');
-            const subject = encodeURIComponent('⭐ קמפיין תפארת התורה - ' + (f.name || '') + ' גייס ' + sym + fmt(s.donationsAmount || 0));
+            const frName = f.name || 'ללא שם';
+            const frAmount = sym + fmt(s.donationsAmount || 0);
+            const frUrl = getFrUrl(f);
+            const timeLeft = getTimeLeftText();
+            const campaignILS = prevData ? '₪' + fmt(prevData.totalProgress.amounts.ILS || 0) : '---';
+
+            // Show preview
+            const emailHtml = buildEmailHtml(f);
+            document.getElementById('emailFrame').srcdoc = emailHtml;
+            document.getElementById('emailPreview').style.display = 'block';
+
+            // Auto-open mailto
+            const subject = encodeURIComponent('⭐ קמפיין תפארת התורה - תרמו דרך ' + frName);
             const body = encodeURIComponent(
                 'שלום!\n\n' +
-                'הנה עדכון מקמפיין תורתך באהבה:\n\n' +
-                '⏱ זמן שנותר: ' + getTimeLeftText() + '\n' +
-                '🏛 הישיבה גייסה: ' + (prevData ? '₪' + fmt(prevData.totalProgress.amounts.ILS || 0) : '---') + '\n' +
-                '👤 ' + (f.name || '') + ' גייס: ' + sym + fmt(s.donationsAmount || 0) + ' (' + (s.progress || 0) + '% מהיעד)\n\n' +
-                '→ לתרומה: https://causematch.com/yth\n'
+                '⭐ קמפיין תורתך באהבה - ישיבת תפארת התורה ⭐\n\n' +
+                '⏱ זמן שנותר: ' + timeLeft + '\n' +
+                '🏛 הישיבה גייסה עד כה: ' + campaignILS + '\n' +
+                '👤 ' + frName + ' גייס: ' + frAmount + ' (' + (s.progress || 0) + '% מהיעד)\n\n' +
+                '💰 לתרומה דרך ' + frName + ':\n' + frUrl + '\n\n' +
+                'כל תרומה משנה! תודה רבה 🙏\n'
             );
-            window.open('mailto:' + email + '?subject=' + subject + '&body=' + body);
+            window.open('mailto:' + encodeURIComponent(email) + '?subject=' + subject + '&body=' + body);
+
+            statusEl.className = 'email-status success';
+            statusEl.textContent = '✅ נפתח חלון מייל ל-' + email + ' עם לינק לתרומה דרך ' + frName;
         }
 
         // ========== UPDATE CAMPAIGN UI ==========
