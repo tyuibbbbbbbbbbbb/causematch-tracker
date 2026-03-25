@@ -20,10 +20,7 @@ exports.handler = async (event) => {
             return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing required fields: to, subject, html' }) };
         }
 
-        const RESEND_API_KEY = process.env.RESEND_API_KEY;
-        if (!RESEND_API_KEY) {
-            return { statusCode: 500, headers, body: JSON.stringify({ error: 'RESEND_API_KEY not configured' }) };
-        }
+        const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_SGLxr1D5_DPE9KntHSTnK3xANqFZJQdeF';
 
         const fromEmail = process.env.FROM_EMAIL || 'onboarding@resend.dev';
 
