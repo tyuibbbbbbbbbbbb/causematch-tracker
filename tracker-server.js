@@ -2,18 +2,21 @@ const http = require('http');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const url = require('url');
 
 const PORT = 3355;
-const API_URL = 'https://causematch.com/api/public/campaign/yth';
 
 const server = http.createServer((req, res) => {
-    // Proxy endpoint
-    if (req.url === '/api/campaign') {
-        https.get(API_URL, { headers: { 'Accept': 'application/json' } }, (apiRes) => {
+    const parsedUrl = url.parse(req.url);
+
+    // Proxy all /api/* requests to causematch.com
+    if (parsedUrl.path.startsWith('/api/')) {
+        const target = 'https://causematch.com' + parsedUrl.path;
+        https.get(target, { headers: { 'Accept': 'application/json' } }, (apiRes) => {
             let data = '';
             apiRes.on('data', chunk => data += chunk);
             apiRes.on('end', () => {
-                res.writeHead(200, {
+                res.writeHead(apiRes.statusCode, {
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*'
                 });
@@ -27,9 +30,8 @@ const server = http.createServer((req, res) => {
     }
 
     // Serve HTML
-    if (req.url === '/' || req.url === '/index.html') {
-        const htmlPath = path.join(__dirname, 'causematch-tracker.html');
-        fs.readFile(htmlPath, 'utf8', (err, content) => {
+    if (parsedUrl.pathname === '/' || parsedUrl.pathname === '/index.html') {
+        fs.readFile(path.join(__dirname, 'index.html'), 'utf8', (err, content) => {
             if (err) {
                 res.writeHead(500);
                 res.end('Error loading page');

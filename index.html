@@ -520,10 +520,8 @@
     </div>
 
     <script>
-        const CORS_PROXY = 'https://corsproxy.io/?url=';
-        const CM_BASE = 'https://causematch.com/api/public';
-        const CAMPAIGN_API = CORS_PROXY + encodeURIComponent(CM_BASE + '/campaign/yth');
-        const LAYER_API_BASE = CORS_PROXY + encodeURIComponent(CM_BASE + '/layer-items?campaignId=5162');
+        const CAMPAIGN_API = '/api/public/campaign/yth';
+        const LAYER_API_BASE = '/api/public/layer-items?campaignId=5162';
         const GOAL_ILS = 800000;
         const GOAL_USD = 250000;
         const POLL_MS = 1000;
@@ -633,7 +631,7 @@
         // ========== FUNDRAISERS ==========
         async function fetchAllFundraisers() {
             try {
-                const layerUrl = p => CORS_PROXY + encodeURIComponent(CM_BASE + '/layer-items?campaignId=5162&paginate=50&page=' + p);
+                const layerUrl = p => '/api/public/layer-items?campaignId=5162&paginate=50&page=' + p;
                 const r1 = await fetch(layerUrl(1));
                 if (!r1.ok) throw new Error('HTTP ' + r1.status);
                 const d1 = await r1.json();
