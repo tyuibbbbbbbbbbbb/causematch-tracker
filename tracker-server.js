@@ -29,9 +29,11 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // Serve HTML
-    if (parsedUrl.pathname === '/' || parsedUrl.pathname === '/index.html') {
-        fs.readFile(path.join(__dirname, 'index.html'), 'utf8', (err, content) => {
+    // Serve HTML files
+    const htmlFiles = { '/': 'index.html', '/index.html': 'index.html', '/demo': 'demo.html', '/demo.html': 'demo.html' };
+    const file = htmlFiles[parsedUrl.pathname];
+    if (file) {
+        fs.readFile(path.join(__dirname, file), 'utf8', (err, content) => {
             if (err) {
                 res.writeHead(500);
                 res.end('Error loading page');

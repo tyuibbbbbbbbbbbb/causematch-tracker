@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>דמו - מעקב קמפיין</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff; min-height: 100vh; padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { font-size: 1.8em; color: #e0c67f; text-align: center; margin-bottom: 5px; text-shadow: 0 2px 10px rgba(184,137,71,0.5); }
+        .subtitle { font-size: 1em; color: #aaa; text-align: center; margin-bottom: 20px; }
+
+        /* ===== CONTROL PANEL ===== */
+        .control-panel {
+            background: rgba(255,100,100,0.08);
+            border: 2px solid rgba(255,100,100,0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .control-panel h2 { color: #ef5350; font-size: 1.1em; margin-bottom: 15px; }
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        .ctrl-group { display: flex; flex-direction: column; }
+        .ctrl-group label { font-size: 0.8em; color: #999; margin-bottom: 4px; }
+        .ctrl-group input, .ctrl-group select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 0.95em;
+            outline: none;
+        }
+        .ctrl-group input:focus { border-color: #e0c67f; }
+        .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            font-size: 0.95em;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+        .btn:hover { transform: scale(1.03); }
+        .btn:active { transform: scale(0.97); }
+        .btn-green { background: #2e7d32; color: #fff; }
+        .btn-blue { background: #1565c0; color: #fff; }
+        .btn-orange { background: #e65100; color: #fff; }
+        .btn-red { background: #c62828; color: #fff; }
+
+        /* Fundraiser editor */
+        .fr-editor {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .fr-editor h3 { color: #e0c67f; font-size: 0.95em; margin-bottom: 10px; }
+        .fr-row {
+            display: grid;
+            grid-template-columns: 1fr 100px 100px 80px 80px;
+            gap: 8px;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.85em;
+        }
+        .fr-row input {
+            padding: 5px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 0.85em;
+            width: 100%;
+        }
+        .fr-row .fr-del {
+            background: rgba(239,83,80,0.2);
+            border: 1px solid #ef5350;
+            color: #ef5350;
+            border-radius: 6px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+        .fr-header { color: #888; font-weight: bold; font-size: 0.75em; }
+
+        /* ===== SAME STYLES AS INDEX ===== */
+        .new-donation-alert {
+            position: fixed; top: 20px; left: 50%;
+            transform: translateX(-50%) translateY(-200px);
+            background: linear-gradient(135deg, #1b5e20, #2e7d32);
+            border: 2px solid #4caf50; border-radius: 16px;
+            padding: 20px 40px; text-align: center; z-index: 1000;
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 10px 40px rgba(76,175,80,0.4); min-width: 350px;
+        }
+        .new-donation-alert.show { transform: translateX(-50%) translateY(0); }
+        .new-donation-alert .alert-icon { font-size: 2em; }
+        .new-donation-alert .alert-title { font-size: 1.3em; font-weight: bold; color: #a5d6a7; margin: 5px 0; }
+        .new-donation-alert .alert-amount { font-size: 2em; font-weight: bold; color: #fff; direction: ltr; }
+        .new-donation-alert .alert-count { font-size: 0.9em; color: #c8e6c9; margin-top: 5px; }
+
+        .timer-section { text-align: center; margin-bottom: 25px; }
+        .timer-label { font-size: 1em; color: #999; margin-bottom: 12px; }
+        .timer { display: flex; justify-content: center; gap: 15px; direction: ltr; }
+        .timer-unit { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 15px 20px; min-width: 80px; }
+        .timer-number { font-size: 2.5em; font-weight: bold; color: #e0c67f; line-height: 1; }
+        .timer-text { font-size: 0.75em; color: #888; margin-top: 4px; }
+
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .card { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 18px; text-align: center; transition: transform 0.3s; }
+        .card:hover { transform: translateY(-4px); }
+        .card-label { font-size: 0.8em; color: #999; margin-bottom: 6px; }
+        .card-value { font-size: 1.8em; font-weight: bold; direction: ltr; }
+        .card-value.ils { color: #4fc3f7; }
+        .card-value.usd { color: #81c784; }
+        .card-value.count { color: #ffb74d; }
+        .card-sub { font-size: 0.78em; color: #777; margin-top: 4px; }
+        .card-percent { font-size: 0.85em; color: #e0c67f; margin-top: 4px; font-weight: bold; }
+
+        .progress-section { margin-bottom: 25px; }
+        .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .progress-bar-bg { width: 100%; height: 28px; background: rgba(255,255,255,0.1); border-radius: 14px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #b88947, #e0c67f); border-radius: 14px; transition: width 0.5s ease; position: relative; }
+        .progress-bar-fill::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); animation: shimmer 2s infinite; }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        .progress-percent { text-align: center; margin-top: 8px; font-size: 1.2em; color: #e0c67f; font-weight: bold; }
+
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .charts-full { margin-bottom: 25px; }
+        .chart-panel { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; }
+        .chart-panel h3 { color: #e0c67f; font-size: 1em; margin-bottom: 12px; }
+        .chart-panel canvas { width: 100% !important; }
+        .chart-panel .chart-tall { height: 400px; }
+
+        @media (max-width: 700px) {
+            .fr-row { grid-template-columns: 1fr 1fr; }
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="new-donation-alert" id="donationAlert">
+        <div class="alert-icon">&#127881;</div>
+        <div class="alert-title">תרומה חדשה!</div>
+        <div class="alert-amount" id="alertAmount">+₪0</div>
+        <div class="alert-count" id="alertCount">תורם מספר 0</div>
+    </div>
+
+    <div class="container">
+        <h1>&#11088; דמו - מעקב קמפיין &#11088;</h1>
+        <div class="subtitle">שנה את הנתונים וראה איך נראה בלייב</div>
+
+        <!-- CONTROL PANEL -->
+        <div class="control-panel">
+            <h2>&#9881; לוח בקרה - שנה נתונים</h2>
+            <div class="controls-grid">
+                <div class="ctrl-group">
+                    <label>סכום שקלים (₪)</label>
+                    <input type="number" id="ctrlILS" value="450000">
+                </div>
+                <div class="ctrl-group">
+                    <label>סכום דולרים ($)</label>
+                    <input type="number" id="ctrlUSD" value="120000">
+                </div>
+                <div class="ctrl-group">
+                    <label>סכום ליש"ט (£)</label>
+                    <input type="number" id="ctrlGBP" value="15000">
+                </div>
+                <div class="ctrl-group">
+                    <label>מספר תורמים</label>
+                    <input type="number" id="ctrlDonors" value="1200">
+                </div>
+                <div class="ctrl-group">
+                    <label>יעד ₪</label>
+                    <input type="number" id="ctrlGoalILS" value="800000">
+                </div>
+                <div class="ctrl-group">
+                    <label>יחס מצ'ינג</label>
+                    <input type="number" id="ctrlMatch" value="2" step="0.1">
+                </div>
+                <div class="ctrl-group">
+                    <label>שעות עד סיום</label>
+                    <input type="number" id="ctrlHours" value="12">
+                </div>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-green" onclick="applyData()">&#9989; עדכן דשבורד</button>
+                <button class="btn btn-blue" onclick="simulateDonation()">&#128176; סמלץ תרומה חדשה</button>
+                <button class="btn btn-orange" onclick="randomize()">&#127922; נתונים אקראיים</button>
+                <button class="btn btn-red" onclick="resetData()">&#128260; אפס</button>
+            </div>
+
+            <!-- Fundraiser Editor -->
+            <div class="fr-editor">
+                <h3>&#128101; ערוך מתרימים</h3>
+                <div class="fr-row fr-header">
+                    <span>שם</span><span>סכום</span><span>יעד</span><span>תורמים</span><span></span>
+                </div>
+                <div id="frList"></div>
+                <div class="btn-row" style="margin-top:8px">
+                    <button class="btn btn-green" onclick="addFundraiser()" style="padding:6px 14px;font-size:0.85em">+ הוסף מתרים</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TIMER -->
+        <div class="timer-section">
+            <div class="timer-label">זמן שנותר לסיום הקמפיין</div>
+            <div class="timer" id="timer"></div>
+        </div>
+
+        <!-- CARDS -->
+        <div class="dashboard">
+            <div class="card">
+                <div class="card-label">שקלים</div>
+                <div class="card-value ils" id="dILS">---</div>
+                <div class="card-percent" id="dPctILS">--% מהיעד</div>
+            </div>
+            <div class="card">
+                <div class="card-label">דולרים</div>
+                <div class="card-value usd" id="dUSD">---</div>
+            </div>
+            <div class="card">
+                <div class="card-label">מספר תורמים</div>
+                <div class="card-value count" id="dCount">---</div>
+                <div class="card-sub">ממוצע: <span id="dAvg">---</span></div>
+            </div>
+            <div class="card">
+                <div class="card-label">סה"כ כולל מצ'ינג</div>
+                <div class="card-value" id="dTotal" style="color:#e0c67f">---</div>
+                <div class="card-sub">מצ'ינג: <span id="dMatch">---</span></div>
+            </div>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="progress-section">
+            <div class="progress-header">
+                <span id="dRaised">₪0</span>
+                <span id="dGoalLabel">יעד: ₪800,000</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="dFill" style="width:0%"></div>
+            </div>
+            <div class="progress-percent" id="dPercent">0%</div>
+        </div>
+
+        <!-- CHARTS -->
+        <div class="charts-full">
+            <div class="chart-panel">
+                <h3>&#128176; תרומות אחרונות לפי מתרים (עם שם)</h3>
+                <div class="chart-tall"><canvas id="recentChart"></canvas></div>
+            </div>
+        </div>
+        <div class="charts-grid">
+            <div class="chart-panel">
+                <h3>&#127942; שגרירים - לפי סכום</h3>
+                <div class="chart-tall"><canvas id="ambChart"></canvas></div>
+            </div>
+            <div class="chart-panel">
+                <h3>&#127963; קהילות - לפי סכום</h3>
+                <div class="chart-tall"><canvas id="comChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script>
+        // ===== STATE =====
+        let fundraisers = [
+            { name: 'ראש הישיבה הרב אהרנוביץ', amount: 33946, goal: 40000, donors: 74, type: 'amb' },
+            { name: 'Rabbi Mutti Saltzman', amount: 27490, goal: 40000, donors: 103, type: 'amb' },
+            { name: 'הרה"ג יצחק גולדברג', amount: 40768, goal: 14400, donors: 81, type: 'amb' },
+            { name: 'הבה"ח ישראל חיים אייזנשטרק', amount: 15776, goal: 14400, donors: 55, type: 'amb' },
+            { name: 'הבה"ח צבי יעקב אהרנוביץ', amount: 7202, goal: 6400, donors: 27, type: 'amb' },
+            { name: 'הבה"ח אליעזר גודמן', amount: 6567, goal: 6400, donors: 15, type: 'amb' },
+            { name: 'Avi Aronovitch', amount: 6646, goal: 10000, donors: 22, type: 'amb' },
+            { name: 'הבה"ח יוני אוסטרן', amount: 4330, goal: 5000, donors: 13, type: 'amb' },
+            { name: 'David Aronovitch Z"L Fund', amount: 2423, goal: 20000, donors: 17, type: 'amb' },
+            { name: 'R\' Shmuel Safir', amount: 967, goal: 0, donors: 15, type: 'amb' },
+            { name: 'שיעור א\'', amount: 161005, goal: 154524, donors: 412, type: 'com' },
+            { name: 'שיעור ב\'', amount: 152185, goal: 169420, donors: 303, type: 'com' },
+            { name: 'צוות', amount: 310901, goal: 383000, donors: 358, type: 'com' },
+            { name: 'מכינה', amount: 77493, goal: 70600, donors: 223, type: 'com' },
+            { name: 'Ambassadors from the USA', amount: 21722, goal: 52945, donors: 210, type: 'com' },
+        ];
+
+        let endTime = new Date(Date.now() + 12 * 3600000);
+        let prevDonors = 1200;
+
+        function fmt(n) { return Number(n).toLocaleString('en-US'); }
+
+        // ===== RENDER FUNDRAISER EDITOR =====
+        function renderFrEditor() {
+            const el = document.getElementById('frList');
+            el.innerHTML = fundraisers.map((f, i) => `
+                <div class="fr-row">
+                    <input value="${f.name}" onchange="fundraisers[${i}].name=this.value">
+                    <input type="number" value="${f.amount}" onchange="fundraisers[${i}].amount=+this.value">
+                    <input type="number" value="${f.goal}" onchange="fundraisers[${i}].goal=+this.value">
+                    <input type="number" value="${f.donors}" onchange="fundraisers[${i}].donors=+this.value">
+                    <button class="fr-del" onclick="fundraisers.splice(${i},1);renderFrEditor()">&#10005;</button>
+                </div>
+            `).join('');
+        }
+
+        function addFundraiser() {
+            fundraisers.push({ name: 'מתרים חדש ' + (fundraisers.length + 1), amount: Math.floor(Math.random() * 20000), goal: 10000, donors: Math.floor(Math.random() * 50), type: 'amb' });
+            renderFrEditor();
+        }
+
+        // ===== APPLY DATA =====
+        function applyData() {
+            const ils = +document.getElementById('ctrlILS').value;
+            const usd = +document.getElementById('ctrlUSD').value;
+            const gbp = +document.getElementById('ctrlGBP').value;
+            const donors = +document.getElementById('ctrlDonors').value;
+            const goalILS = +document.getElementById('ctrlGoalILS').value;
+            const match = +document.getElementById('ctrlMatch').value;
+            const hours = +document.getElementById('ctrlHours').value;
+
+            endTime = new Date(Date.now() + hours * 3600000);
+
+            document.getElementById('dILS').textContent = '₪' + fmt(ils);
+            document.getElementById('dUSD').textContent = '$' + fmt(usd);
+            document.getElementById('dCount').textContent = fmt(donors);
+            document.getElementById('dMatch').textContent = 'x' + match;
+
+            const total = ils * match;
+            document.getElementById('dTotal').textContent = '₪' + fmt(total);
+
+            if (donors > 0) document.getElementById('dAvg').textContent = '₪' + fmt(Math.round(ils / donors));
+
+            const pct = (ils / goalILS * 100);
+            document.getElementById('dPctILS').textContent = pct.toFixed(1) + '% מהיעד';
+            document.getElementById('dFill').style.width = Math.min(pct, 100) + '%';
+            document.getElementById('dPercent').textContent = pct.toFixed(1) + '%';
+            document.getElementById('dRaised').textContent = '₪' + fmt(ils);
+            document.getElementById('dGoalLabel').textContent = 'יעד: ₪' + fmt(goalILS);
+
+            prevDonors = donors;
+            updateCharts();
+        }
+
+        // ===== SIMULATE DONATION =====
+        function simulateDonation() {
+            const amount = Math.floor(Math.random() * 5000) + 100;
+            const donors = +document.getElementById('ctrlDonors').value + Math.ceil(Math.random() * 3);
+            const ils = +document.getElementById('ctrlILS').value + amount;
+
+            document.getElementById('ctrlILS').value = ils;
+            document.getElementById('ctrlDonors').value = donors;
+
+            // Pick random fundraiser to add to
+            const ri = Math.floor(Math.random() * fundraisers.length);
+            fundraisers[ri].amount += amount;
+            fundraisers[ri].donors += 1;
+            renderFrEditor();
+
+            // Show alert
+            const el = document.getElementById('donationAlert');
+            document.getElementById('alertAmount').textContent = '+₪' + fmt(amount);
+            document.getElementById('alertCount').textContent = 'תורם מספר ' + fmt(donors) + ' | ' + fundraisers[ri].name;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 4000);
+
+            applyData();
+        }
+
+        // ===== RANDOMIZE =====
+        function randomize() {
+            document.getElementById('ctrlILS').value = Math.floor(Math.random() * 700000) + 100000;
+            document.getElementById('ctrlUSD').value = Math.floor(Math.random() * 200000) + 20000;
+            document.getElementById('ctrlGBP').value = Math.floor(Math.random() * 30000) + 2000;
+            document.getElementById('ctrlDonors').value = Math.floor(Math.random() * 2000) + 200;
+            document.getElementById('ctrlMatch').value = (Math.random() * 2 + 1).toFixed(1);
+            document.getElementById('ctrlHours').value = Math.floor(Math.random() * 48) + 1;
+
+            fundraisers.forEach(f => {
+                f.amount = Math.floor(Math.random() * f.goal * 1.5) + 500;
+                f.donors = Math.floor(Math.random() * 100) + 5;
+            });
+            renderFrEditor();
+            applyData();
+        }
+
+        function resetData() {
+            document.getElementById('ctrlILS').value = 450000;
+            document.getElementById('ctrlUSD').value = 120000;
+            document.getElementById('ctrlGBP').value = 15000;
+            document.getElementById('ctrlDonors').value = 1200;
+            document.getElementById('ctrlGoalILS').value = 800000;
+            document.getElementById('ctrlMatch').value = 2;
+            document.getElementById('ctrlHours').value = 12;
+            applyData();
+        }
+
+        // ===== TIMER =====
+        function updateTimer() {
+            const el = document.getElementById('timer');
+            const diff = endTime - new Date();
+            if (diff <= 0) { el.innerHTML = '<div style="font-size:1.5em;color:#ef5350;font-weight:bold">הקמפיין הסתיים!</div>'; return; }
+            const d = Math.floor(diff / 86400000), h = Math.floor((diff / 3600000) % 24),
+                  m = Math.floor((diff / 60000) % 60), s = Math.floor((diff / 1000) % 60);
+            el.innerHTML = `
+                <div class="timer-unit"><div class="timer-number">${String(d).padStart(2,'0')}</div><div class="timer-text">ימים</div></div>
+                <div class="timer-unit"><div class="timer-number">${String(h).padStart(2,'0')}</div><div class="timer-text">שעות</div></div>
+                <div class="timer-unit"><div class="timer-number">${String(m).padStart(2,'0')}</div><div class="timer-text">דקות</div></div>
+                <div class="timer-unit"><div class="timer-number">${String(s).padStart(2,'0')}</div><div class="timer-text">שניות</div></div>`;
+        }
+        setInterval(updateTimer, 1000);
+
+        // ===== CHARTS =====
+        let recentChart, ambChart, comChart;
+
+        function initCharts() {
+            function makeBar(id) {
+                return new Chart(document.getElementById(id).getContext('2d'), {
+                    type: 'bar',
+                    data: { labels: [], datasets: [
+                        { label: 'גויס', data: [], backgroundColor: 'rgba(79,195,247,0.7)', borderColor: '#4fc3f7', borderWidth: 1, borderRadius: 4 },
+                        { label: 'יעד', data: [], backgroundColor: 'rgba(255,255,255,0.08)', borderColor: 'rgba(255,255,255,0.2)', borderWidth: 1, borderRadius: 4 }
+                    ]},
+                    options: {
+                        responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+                        animation: { duration: 500 },
+                        plugins: { legend: { labels: { color: '#aaa', font: { size: 11 } } } },
+                        scales: {
+                            x: { ticks: { color: '#888', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                            y: { ticks: { color: '#ddd', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.03)' } }
+                        }
+                    }
+                });
+            }
+
+            recentChart = new Chart(document.getElementById('recentChart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: [], datasets: [
+                    { label: 'סכום', data: [], backgroundColor: [], borderColor: [], borderWidth: 1, borderRadius: 4 }
+                ]},
+                options: {
+                    responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: '#888', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { ticks: { color: '#fff', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.03)' } }
+                    }
+                }
+            });
+
+            ambChart = makeBar('ambChart');
+            comChart = makeBar('comChart');
+        }
+        initCharts();
+
+        function updateCharts() {
+            // Recent donors (all sorted by amount desc)
+            const sorted = [...fundraisers].filter(f => f.type === 'amb').sort((a, b) => b.amount - a.amount);
+            const colors = sorted.map(f => {
+                const p = f.goal > 0 ? (f.amount / f.goal * 100) : 0;
+                if (p >= 100) return { bg: 'rgba(66,165,245,0.7)', br: '#42a5f5' };
+                if (p >= 60) return { bg: 'rgba(129,199,132,0.7)', br: '#81c784' };
+                if (p >= 30) return { bg: 'rgba(255,183,77,0.7)', br: '#ffb74d' };
+                return { bg: 'rgba(239,83,80,0.7)', br: '#ef5350' };
+            });
+
+            recentChart.data.labels = sorted.map(f => f.name);
+            recentChart.data.datasets[0].data = sorted.map(f => f.amount);
+            recentChart.data.datasets[0].backgroundColor = colors.map(c => c.bg);
+            recentChart.data.datasets[0].borderColor = colors.map(c => c.br);
+            recentChart.update();
+
+            // Ambassadors
+            const ambs = [...fundraisers].filter(f => f.type === 'amb').sort((a, b) => b.amount - a.amount);
+            ambChart.data.labels = ambs.map(f => f.name);
+            ambChart.data.datasets[0].data = ambs.map(f => f.amount);
+            ambChart.data.datasets[1].data = ambs.map(f => f.goal);
+            ambChart.update();
+
+            // Communities
+            const coms = [...fundraisers].filter(f => f.type === 'com').sort((a, b) => b.amount - a.amount);
+            comChart.data.labels = coms.map(f => f.name);
+            comChart.data.datasets[0].data = coms.map(f => f.amount);
+            comChart.data.datasets[1].data = coms.map(f => f.goal);
+            comChart.update();
+        }
+
+        // ===== INIT =====
+        renderFrEditor();
+        applyData();
+        updateTimer();
+    </script>
+</body>
+</html>
