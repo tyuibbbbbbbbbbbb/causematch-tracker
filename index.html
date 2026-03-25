@@ -252,47 +252,79 @@
 
         .fundraiser-count { color: #888; font-size: 0.85em; margin-top: 10px; text-align: center; }
 
-        /* ===== STATS GRID ===== */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7); z-index: 500;
+            display: none; align-items: center; justify-content: center;
+            backdrop-filter: blur(5px);
         }
-        .stats-panel {
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 16px;
-            padding: 20px;
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: linear-gradient(135deg, #1a1840, #2d2860);
+            border: 1px solid rgba(224,198,127,0.3);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 700px; width: 90%; max-height: 85vh;
+            overflow-y: auto; position: relative;
         }
-        .stats-panel h3 { color: #e0c67f; font-size: 1em; margin-bottom: 12px; }
-        .stat-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+        .modal-close {
+            position: absolute; top: 12px; left: 12px;
+            background: rgba(255,255,255,0.1); border: none;
+            color: #aaa; font-size: 1.5em; cursor: pointer;
+            border-radius: 50%; width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
         }
-        .stat-row:last-child { border-bottom: none; }
-        .stat-label { color: #999; font-size: 0.9em; }
-        .stat-value { color: #fff; font-size: 1em; font-weight: bold; direction: ltr; }
+        .modal-close:hover { color: #fff; background: rgba(255,255,255,0.2); }
+        .modal h2 { color: #e0c67f; margin-bottom: 5px; font-size: 1.3em; }
+        .modal .modal-sub { color: #888; font-size: 0.85em; margin-bottom: 20px; }
+        .modal-stats {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 12px; margin-bottom: 20px;
+        }
+        .modal-stat {
+            background: rgba(255,255,255,0.06); border-radius: 12px;
+            padding: 14px; text-align: center;
+        }
+        .modal-stat .ms-val { font-size: 1.4em; font-weight: bold; color: #4fc3f7; direction: ltr; }
+        .modal-stat .ms-lbl { font-size: 0.75em; color: #888; margin-top: 4px; }
+        .modal-progress { margin-bottom: 20px; }
+        .modal-progress .mp-bar { width: 100%; height: 20px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; }
+        .modal-progress .mp-fill { height: 100%; border-radius: 10px; transition: width 0.5s; }
+        .modal-progress .mp-text { text-align: center; margin-top: 6px; font-size: 0.9em; color: #e0c67f; font-weight: bold; }
 
-        /* ===== CURRENCY BARS ===== */
-        .currency-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .currency-bar-label { min-width: 35px; font-size: 0.85em; color: #999; text-align: center; }
-        .currency-bar-bg {
-            flex: 1; height: 22px;
-            background: rgba(255,255,255,0.08);
-            border-radius: 11px; overflow: hidden;
+        /* Email section */
+        .email-section {
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; padding: 15px; margin-top: 15px;
         }
-        .currency-bar-fill {
-            height: 100%; border-radius: 11px;
-            transition: width 1s ease;
-            display: flex; align-items: center; justify-content: flex-end;
-            padding: 0 8px; font-size: 0.75em; font-weight: bold; color: #fff; min-width: fit-content;
+        .email-section h3 { color: #e0c67f; font-size: 0.95em; margin-bottom: 10px; }
+        .email-row { display: flex; gap: 10px; align-items: center; }
+        .email-row input {
+            flex: 1; padding: 10px 14px; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.05); color: #fff;
+            font-size: 0.95em; outline: none;
         }
-        .currency-bar-fill.ils-bar { background: linear-gradient(90deg, #0277bd, #4fc3f7); }
-        .currency-bar-fill.usd-bar { background: linear-gradient(90deg, #2e7d32, #81c784); }
-        .currency-bar-fill.gbp-bar { background: linear-gradient(90deg, #6a1b9a, #ce93d8); }
-        .currency-bar-amount { min-width: 100px; text-align: left; font-size: 0.85em; color: #aaa; direction: ltr; }
+        .email-row input:focus { border-color: #e0c67f; }
+        .email-row button {
+            padding: 10px 20px; border-radius: 10px; border: none;
+            background: #2e7d32; color: #fff; font-weight: bold;
+            cursor: pointer; font-size: 0.95em; white-space: nowrap;
+        }
+        .email-row button:hover { background: #388e3c; }
+        .email-preview { margin-top: 12px; display: none; }
+        .email-preview iframe {
+            width: 100%; height: 350px; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px; background: #fff;
+        }
+        .email-actions { display: flex; gap: 8px; margin-top: 8px; }
+        .email-actions button {
+            padding: 8px 16px; border-radius: 8px; border: none;
+            font-size: 0.85em; cursor: pointer; font-weight: bold;
+        }
+        .btn-copy { background: #1565c0; color: #fff; }
+        .btn-send { background: #e65100; color: #fff; }
 
         /* ===== DONATION HISTORY ===== */
         .history-section {
@@ -502,34 +534,35 @@
             <div class="fundraiser-count" id="fundraiserCount"></div>
         </div>
 
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stats-panel">
-                <h3>התפלגות לפי מטבע</h3>
-                <div>
-                    <div class="currency-bar-row">
-                        <div class="currency-bar-label">&#8362;</div>
-                        <div class="currency-bar-bg"><div class="currency-bar-fill ils-bar" id="barILS" style="width:0%"></div></div>
-                        <div class="currency-bar-amount" id="barILSText">---</div>
+        <!-- Fundraiser Modal -->
+        <div class="modal-overlay" id="frModal">
+            <div class="modal">
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+                <h2 id="modalName">---</h2>
+                <div class="modal-sub" id="modalSub"></div>
+                <div class="modal-stats">
+                    <div class="modal-stat"><div class="ms-val" id="modalAmount">---</div><div class="ms-lbl">&#1505;&#1499;&#1493;&#1501; &#1513;&#1490;&#1493;&#1497;&#1505;</div></div>
+                    <div class="modal-stat"><div class="ms-val" id="modalDonors">---</div><div class="ms-lbl">&#1514;&#1493;&#1512;&#1502;&#1497;&#1501;</div></div>
+                    <div class="modal-stat"><div class="ms-val" id="modalGoal">---</div><div class="ms-lbl">&#1497;&#1506;&#1491;</div></div>
+                </div>
+                <div class="modal-progress">
+                    <div class="mp-bar"><div class="mp-fill" id="modalFill"></div></div>
+                    <div class="mp-text" id="modalProg"></div>
+                </div>
+                <div class="email-section">
+                    <h3>&#128231; &#1513;&#1500;&#1495; &#1500;&#1497;&#1504;&#1511; &#1490;&#1497;&#1493;&#1505; &#1489;&#1488;&#1497;&#1502;&#1497;&#1497;&#1500;</h3>
+                    <div class="email-row">
+                        <input type="email" id="emailInput" placeholder="name@example.com" dir="ltr">
+                        <button onclick="generateEmail()">&#128228; &#1510;&#1493;&#1512; &#1488;&#1497;&#1502;&#1497;&#1497;&#1500;</button>
                     </div>
-                    <div class="currency-bar-row">
-                        <div class="currency-bar-label">$</div>
-                        <div class="currency-bar-bg"><div class="currency-bar-fill usd-bar" id="barUSD" style="width:0%"></div></div>
-                        <div class="currency-bar-amount" id="barUSDText">---</div>
-                    </div>
-                    <div class="currency-bar-row">
-                        <div class="currency-bar-label">&#163;</div>
-                        <div class="currency-bar-bg"><div class="currency-bar-fill gbp-bar" id="barGBP" style="width:0%"></div></div>
-                        <div class="currency-bar-amount" id="barGBPText">---</div>
+                    <div class="email-preview" id="emailPreview">
+                        <iframe id="emailFrame"></iframe>
+                        <div class="email-actions">
+                            <button class="btn-copy" onclick="copyEmail()">&#128203; &#1492;&#1506;&#1514;&#1511; HTML</button>
+                            <button class="btn-send" onclick="sendEmail()">&#128231; &#1508;&#1514;&#1495; &#1489;&#1502;&#1497;&#1497;&#1500;</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="stats-panel">
-                <h3>נתונים לפי תורם</h3>
-                <div class="stat-row"><span class="stat-label">ממוצע בשקלים</span><span class="stat-value" id="statAvgILS">---</span></div>
-                <div class="stat-row"><span class="stat-label">ממוצע בדולרים</span><span class="stat-value" id="statAvgUSD">---</span></div>
-                <div class="stat-row"><span class="stat-label">תרומות לדקה</span><span class="stat-value" id="statRate">---</span></div>
-                <div class="stat-row"><span class="stat-label">זמן מעקב</span><span class="stat-value" id="statUptime">00:00</span></div>
             </div>
         </div>
 
@@ -854,7 +887,7 @@
                 const sym = currSymbol(f.currency || 'ILS');
                 const layerHe = f.layer && f.layer.name === 'Ambassadors' ? 'שגריר' : 'קהילה';
 
-                return `<div class="fundraiser-item">
+                return `<div class="fundraiser-item" style="cursor:pointer" onclick='openFundraiser(${JSON.stringify(f).replace(/'/g,"&#39;")})'>
                     <div class="fi-rank ${i < 3 ? 'top3' : ''}">${i < 3 ? ['&#129351;','&#129352;','&#129353;'][i] : i + 1}</div>
                     <div class="fi-info">
                         <div class="fi-name">${f.name || 'ללא שם'}</div>
@@ -901,6 +934,134 @@
             renderFundraisers();
         });
 
+        // ========== MODAL + EMAIL ==========
+        let currentFundraiser = null;
+        let lastEmailHtml = '';
+
+        function openFundraiser(f) {
+            currentFundraiser = f;
+            const s = f.statistics || {};
+            const sym = currSymbol(f.currency || 'ILS');
+            const prog = s.progress || 0;
+            const layerHe = f.layer && f.layer.name === 'Ambassadors' ? 'שגריר' : 'קהילה';
+
+            document.getElementById('modalName').textContent = f.name || 'ללא שם';
+            document.getElementById('modalSub').textContent = layerHe + ' | תרומה אחרונה: ' + (s.lastDonationAt ? new Date(s.lastDonationAt).toLocaleString('he-IL') : '---');
+            document.getElementById('modalAmount').textContent = sym + fmt(s.donationsAmount || 0);
+            document.getElementById('modalDonors').textContent = fmt(s.donorsCount || 0);
+            document.getElementById('modalGoal').textContent = f.goal ? sym + fmt(f.goal) : 'ללא';
+
+            const fillEl = document.getElementById('modalFill');
+            const pClass = getProgressClass(prog);
+            fillEl.className = 'mp-fill fi-progress-fill ' + pClass;
+            fillEl.style.width = Math.min(prog, 100) + '%';
+            document.getElementById('modalProg').textContent = prog + '% מהיעד';
+
+            document.getElementById('emailPreview').style.display = 'none';
+            document.getElementById('emailInput').value = '';
+            document.getElementById('frModal').classList.add('open');
+        }
+
+        function closeModal() {
+            document.getElementById('frModal').classList.remove('open');
+            currentFundraiser = null;
+        }
+
+        document.getElementById('frModal').addEventListener('click', e => {
+            if (e.target === document.getElementById('frModal')) closeModal();
+        });
+
+        function getTimeLeftText() {
+            if (!campaignEndAt) return 'הקמפיין פעיל';
+            const diff = new Date(campaignEndAt) - new Date();
+            if (diff <= 0) return 'הקמפיין הסתיים';
+            const h = Math.floor(diff / 3600000), m = Math.floor((diff / 60000) % 60);
+            const d = Math.floor(h / 24);
+            if (d > 0) return d + ' ימים ו-' + (h % 24) + ' שעות';
+            return h + ' שעות ו-' + m + ' דקות';
+        }
+
+        function generateEmail() {
+            if (!currentFundraiser) return;
+            const f = currentFundraiser;
+            const s = f.statistics || {};
+            const sym = currSymbol(f.currency || 'ILS');
+            const campaignILS = prevData ? '₪' + fmt(prevData.totalProgress.amounts.ILS || 0) : '---';
+            const campaignCount = prevData ? fmt(prevData.totalProgress.count || 0) : '---';
+            const frAmount = sym + fmt(s.donationsAmount || 0);
+            const frGoal = f.goal ? sym + fmt(f.goal) : 'ללא יעד';
+            const frProg = (s.progress || 0) + '%';
+            const frName = f.name || 'ללא שם';
+            const timeLeft = getTimeLeftText();
+            const siteUrl = 'https://causematch.com/yth';
+
+            lastEmailHtml = `<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f5f5f5;font-family:Arial,sans-serif">
+<div style="max-width:600px;margin:20px auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.1)">
+  <div style="background:linear-gradient(135deg,#0f0c29,#302b63);padding:30px;text-align:center">
+    <h1 style="color:#e0c67f;margin:0;font-size:24px">⭐ ישיבת תפארת התורה ⭐</h1>
+    <p style="color:#aaa;margin:8px 0 0;font-size:14px">קמפיין תורתך באהבה</p>
+  </div>
+  <div style="padding:25px">
+    <div style="background:#fff3e0;border-radius:12px;padding:18px;margin-bottom:20px;text-align:center;border:1px solid #ffe0b2">
+      <div style="font-size:14px;color:#e65100">⏱ זמן שנותר לקמפיין</div>
+      <div style="font-size:28px;font-weight:bold;color:#bf360c;margin:8px 0">${timeLeft}</div>
+    </div>
+    <div style="display:flex;gap:12px;margin-bottom:20px">
+      <div style="flex:1;background:#e8f5e9;border-radius:12px;padding:15px;text-align:center">
+        <div style="font-size:12px;color:#2e7d32">הישיבה גייסה</div>
+        <div style="font-size:22px;font-weight:bold;color:#1b5e20;direction:ltr">${campaignILS}</div>
+        <div style="font-size:11px;color:#4caf50">${campaignCount} תורמים</div>
+      </div>
+      <div style="flex:1;background:#e3f2fd;border-radius:12px;padding:15px;text-align:center">
+        <div style="font-size:12px;color:#1565c0">${frName} גייס</div>
+        <div style="font-size:22px;font-weight:bold;color:#0d47a1;direction:ltr">${frAmount}</div>
+        <div style="font-size:11px;color:#42a5f5">${frProg} מהיעד (${frGoal})</div>
+      </div>
+    </div>
+    <div style="background:#f5f5f5;border-radius:12px;padding:20px;text-align:center;margin-bottom:20px">
+      <div style="font-size:16px;color:#333;margin-bottom:12px">כל תרומה משנה! הצטרפו לקמפיין</div>
+      <a href="${siteUrl}" style="display:inline-block;padding:14px 40px;background:linear-gradient(135deg,#b88947,#e0c67f);color:#1a1a2e;text-decoration:none;border-radius:30px;font-weight:bold;font-size:16px">לתרומה עכשיו →</a>
+    </div>
+    <div style="text-align:center;font-size:12px;color:#999;padding:10px 0;border-top:1px solid #eee">
+      ${frName} | ${frAmount} | ${frProg} מהיעד
+    </div>
+  </div>
+</div>
+</body></html>`;
+
+            const frame = document.getElementById('emailFrame');
+            frame.srcdoc = lastEmailHtml;
+            document.getElementById('emailPreview').style.display = 'block';
+        }
+
+        function copyEmail() {
+            if (!lastEmailHtml) return;
+            navigator.clipboard.writeText(lastEmailHtml).then(() => {
+                alert('HTML הועתק ללוח!');
+            });
+        }
+
+        function sendEmail() {
+            if (!currentFundraiser) return;
+            const email = document.getElementById('emailInput').value;
+            const f = currentFundraiser;
+            const s = f.statistics || {};
+            const sym = currSymbol(f.currency || 'ILS');
+            const subject = encodeURIComponent('⭐ קמפיין תפארת התורה - ' + (f.name || '') + ' גייס ' + sym + fmt(s.donationsAmount || 0));
+            const body = encodeURIComponent(
+                'שלום!\n\n' +
+                'הנה עדכון מקמפיין תורתך באהבה:\n\n' +
+                '⏱ זמן שנותר: ' + getTimeLeftText() + '\n' +
+                '🏛 הישיבה גייסה: ' + (prevData ? '₪' + fmt(prevData.totalProgress.amounts.ILS || 0) : '---') + '\n' +
+                '👤 ' + (f.name || '') + ' גייס: ' + sym + fmt(s.donationsAmount || 0) + ' (' + (s.progress || 0) + '% מהיעד)\n\n' +
+                '→ לתרומה: https://causematch.com/yth\n'
+            );
+            window.open('mailto:' + email + '?subject=' + subject + '&body=' + body);
+        }
+
         // ========== UPDATE CAMPAIGN UI ==========
         function updateUI(data) {
             const p = data.totalProgress;
@@ -932,30 +1093,6 @@
             document.getElementById('progressPercent').textContent = pctILS.toFixed(1) + '%';
             document.getElementById('progressRaised').textContent = '₪' + fmt(ils);
 
-            // Currency bars
-            const uR = 3.2, gR = 4.32;
-            const tILS = ils + usd * uR + gbp * gR;
-            if (tILS > 0) {
-                const pI = ils / tILS * 100, pU = usd * uR / tILS * 100, pG = gbp * gR / tILS * 100;
-                document.getElementById('barILS').style.width = pI + '%';
-                document.getElementById('barILS').textContent = pI.toFixed(0) + '%';
-                document.getElementById('barILSText').textContent = '₪' + fmt(ils) + ' (' + pI.toFixed(1) + '%)';
-                document.getElementById('barUSD').style.width = pU + '%';
-                document.getElementById('barUSD').textContent = pU.toFixed(0) + '%';
-                document.getElementById('barUSDText').textContent = '$' + fmt(usd) + ' (' + pU.toFixed(1) + '%)';
-                document.getElementById('barGBP').style.width = pG + '%';
-                document.getElementById('barGBP').textContent = pG.toFixed(0) + '%';
-                document.getElementById('barGBPText').textContent = '£' + fmt(gbp) + ' (' + pG.toFixed(1) + '%)';
-            }
-
-            if (count > 0) {
-                document.getElementById('statAvgILS').textContent = '₪' + fmt(ils / count);
-                document.getElementById('statAvgUSD').textContent = '$' + fmt(usd / count);
-            }
-
-            const elMin = (Date.now() - trackingStart) / 60000;
-            const newD = count - startCount;
-            if (elMin > 0.5 && newD > 0) document.getElementById('statRate').textContent = (newD / elMin).toFixed(1);
 
             if (data.endAt) campaignEndAt = data.endAt;
 
