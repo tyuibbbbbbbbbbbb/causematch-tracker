@@ -30,7 +30,7 @@ const server = http.createServer((req, res) => {
     }
 
     // Serve HTML files
-    const htmlFiles = { '/': 'index.html', '/index.html': 'index.html', '/demo': 'demo.html', '/demo.html': 'demo.html' };
+    const htmlFiles = { '/': 'index.html', '/index.html': 'index.html', '/demo': 'demo.html', '/demo.html': 'demo.html', '/display': 'display.html', '/display.html': 'display.html' };
     const file = htmlFiles[parsedUrl.pathname];
     if (file) {
         fs.readFile(path.join(__dirname, file), 'utf8', (err, content) => {

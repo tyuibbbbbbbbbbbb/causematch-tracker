@@ -541,17 +541,11 @@
             </div>
         </div>
 
-        <!-- Fundraisers Section -->
+        <!-- Fundraisers Section (Ambassadors only) -->
         <div class="fundraisers-section">
-            <h3>&#128101; מתרימים ושגרירים (בזמן אמת)</h3>
+            <h3>&#128101; מתרימים / שגרירים (בזמן אמת)</h3>
 
             <input type="text" class="search-box" id="searchBox" placeholder="חפש מתרים לפי שם...">
-
-            <div class="tabs" id="layerTabs">
-                <div class="tab-btn active" data-filter="all">הכל</div>
-                <div class="tab-btn" data-filter="ambassadors">שגרירים</div>
-                <div class="tab-btn" data-filter="communities">קהילות</div>
-            </div>
 
             <div class="sort-bar">
                 <span>מיון:</span>
@@ -565,6 +559,26 @@
                 <div class="history-empty">טוען מתרימים...</div>
             </div>
             <div class="fundraiser-count" id="fundraiserCount"></div>
+        </div>
+
+        <!-- Communities Section (separate) -->
+        <div class="fundraisers-section">
+            <h3>&#127963; קהילות (בזמן אמת)</h3>
+
+            <input type="text" class="search-box" id="searchBoxComm" placeholder="חפש קהילה לפי שם...">
+
+            <div class="sort-bar" id="commSortBar">
+                <span>מיון:</span>
+                <button class="sort-btn active" data-sort="amount">סכום &#9660;</button>
+                <button class="sort-btn" data-sort="progress">% יעד &#9660;</button>
+                <button class="sort-btn" data-sort="donors">תורמים &#9660;</button>
+                <button class="sort-btn" data-sort="name">שם</button>
+            </div>
+
+            <div class="fundraiser-list" id="communityList">
+                <div class="history-empty">טוען קהילות...</div>
+            </div>
+            <div class="fundraiser-count" id="communityCount"></div>
         </div>
 
         <!-- Fundraiser Modal -->
@@ -605,6 +619,16 @@
                         <div style="font-size:0.8em;color:#888;margin-bottom:6px">תצוגה מקדימה של האימייל:</div>
                         <iframe id="emailFrame"></iframe>
                     </div>
+                </div>
+
+                <!-- WhatsApp -->
+                <div class="email-section" style="border-color:rgba(37,211,102,0.3);background:rgba(37,211,102,0.08)">
+                    <h3 style="color:#25d366">&#128172; שתף בוואטסאפ</h3>
+                    <div class="email-row">
+                        <input type="tel" id="waPhone" placeholder="מספר טלפון (למשל 0501234567)" dir="ltr">
+                        <button onclick="sendWhatsApp()" style="background:linear-gradient(135deg,#128c7e,#25d366)">&#128172; שלח</button>
+                    </div>
+                    <button onclick="sendWhatsApp(true)" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;background:rgba(37,211,102,0.15);color:#25d366;cursor:pointer;font-weight:bold;font-size:0.9em">&#128279; שתף לכל אחד (בלי מספר)</button>
                 </div>
             </div>
         </div>
@@ -651,9 +675,10 @@
         let soundEnabled = false;
         let donationHistory = [];
         let allFundraisers = [];
-        let currentFilter = 'all';
         let currentSort = 'amount';
+        let commSort = 'amount';
         let searchQuery = '';
+        let commSearchQuery = '';
         let recentDonorsChart = null;
         let recentDonations = [];
         let ambassadorsChart = null;
@@ -886,6 +911,7 @@
 
                 allFundraisers = all;
                 renderFundraisers();
+                renderCommunities();
                 updateFundraiserStats();
                 updateAllCharts();
             } catch (err) {
@@ -907,43 +933,30 @@
             return 'low';
         }
 
-        function renderFundraisers() {
-            let items = [...allFundraisers];
-
-            // Filter
-            if (currentFilter === 'ambassadors') items = items.filter(f => f.layer && f.layer.name === 'Ambassadors');
-            else if (currentFilter === 'communities') items = items.filter(f => f.layer && f.layer.name === 'Communities');
-
-            // Search
-            if (searchQuery) {
-                const q = searchQuery.toLowerCase();
-                items = items.filter(f => f.name && f.name.toLowerCase().includes(q));
-            }
-
-            // Sort
-            items.sort((a, b) => {
+        function sortItems(items, sortKey) {
+            return items.sort((a, b) => {
                 const sa = a.statistics || {}, sb = b.statistics || {};
-                if (currentSort === 'amount') return (sb.donationsAmount || 0) - (sa.donationsAmount || 0);
-                if (currentSort === 'progress') return (sb.progress || 0) - (sa.progress || 0);
-                if (currentSort === 'donors') return (sb.donorsCount || 0) - (sa.donorsCount || 0);
-                if (currentSort === 'name') return (a.name || '').localeCompare(b.name || '', 'he');
+                if (sortKey === 'amount') return (sb.donationsAmount || 0) - (sa.donationsAmount || 0);
+                if (sortKey === 'progress') return (sb.progress || 0) - (sa.progress || 0);
+                if (sortKey === 'donors') return (sb.donorsCount || 0) - (sa.donorsCount || 0);
+                if (sortKey === 'name') return (a.name || '').localeCompare(b.name || '', 'he');
                 return 0;
             });
+        }
 
-            const el = document.getElementById('fundraiserList');
+        function renderItemList(items, elId, countId, totalLabel) {
+            const el = document.getElementById(elId);
             if (!items.length) {
-                el.innerHTML = '<div class="history-empty">לא נמצאו מתרימים</div>';
-                document.getElementById('fundraiserCount').textContent = '';
+                el.innerHTML = '<div class="history-empty">לא נמצאו תוצאות</div>';
+                document.getElementById(countId).textContent = '';
                 return;
             }
-
             el.innerHTML = items.map((f, i) => {
                 const s = f.statistics || {};
                 const prog = Math.min(s.progress || 0, 999);
                 const barW = Math.min(prog, 100);
                 const sym = currSymbol(f.currency || 'ILS');
                 const layerHe = f.layer && f.layer.name === 'Ambassadors' ? 'שגריר' : 'קהילה';
-
                 return `<div class="fundraiser-item" style="cursor:pointer" onclick='openFundraiser(${JSON.stringify(f).replace(/'/g,"&#39;")})'>
                     <div class="fi-rank ${i < 3 ? 'top3' : ''}">${i < 3 ? ['&#129351;','&#129352;','&#129353;'][i] : i + 1}</div>
                     <div class="fi-info">
@@ -961,34 +974,59 @@
                     </div>
                 </div>`;
             }).join('');
-
-            document.getElementById('fundraiserCount').textContent = 'מציג ' + items.length + ' מתוך ' + allFundraisers.length + ' מתרימים';
+            document.getElementById(countId).textContent = totalLabel + items.length;
         }
 
-        // Tabs
-        document.getElementById('layerTabs').addEventListener('click', e => {
-            const btn = e.target.closest('.tab-btn');
-            if (!btn) return;
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentFilter = btn.dataset.filter;
-            renderFundraisers();
-        });
+        function renderFundraisers() {
+            let items = allFundraisers.filter(f => f.layer && f.layer.name === 'Ambassadors');
+            if (searchQuery) {
+                const q = searchQuery.toLowerCase();
+                items = items.filter(f => f.name && f.name.toLowerCase().includes(q));
+            }
+            sortItems(items, currentSort);
+            renderItemList(items, 'fundraiserList', 'fundraiserCount', 'מתרימים: ');
+        }
 
-        // Sort
+        function renderCommunities() {
+            let items = allFundraisers.filter(f => f.layer && f.layer.name === 'Communities');
+            if (commSearchQuery) {
+                const q = commSearchQuery.toLowerCase();
+                items = items.filter(f => f.name && f.name.toLowerCase().includes(q));
+            }
+            sortItems(items, commSort);
+            renderItemList(items, 'communityList', 'communityCount', 'קהילות: ');
+        }
+
+        // Sort - ambassadors
         document.querySelector('.sort-bar').addEventListener('click', e => {
             const btn = e.target.closest('.sort-btn');
             if (!btn) return;
-            document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+            e.currentTarget.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentSort = btn.dataset.sort;
             renderFundraisers();
         });
 
-        // Search
+        // Sort - communities
+        document.getElementById('commSortBar').addEventListener('click', e => {
+            const btn = e.target.closest('.sort-btn');
+            if (!btn) return;
+            e.currentTarget.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            commSort = btn.dataset.sort;
+            renderCommunities();
+        });
+
+        // Search - ambassadors
         document.getElementById('searchBox').addEventListener('input', e => {
             searchQuery = e.target.value;
             renderFundraisers();
+        });
+
+        // Search - communities
+        document.getElementById('searchBoxComm').addEventListener('input', e => {
+            commSearchQuery = e.target.value;
+            renderCommunities();
         });
 
         // ========== MODAL + EMAIL ==========
@@ -1069,6 +1107,12 @@
             const timeLeft = getTimeLeftText();
             const frUrl = getFrUrl(f);
 
+            const now = new Date().toLocaleString('he-IL');
+            const amounts = [18, 36, 100, 180, 360, 500];
+            const amountBtns = amounts.map(a => 
+                `<a href="${frUrl}&amount=${a}" style="display:inline-block;padding:10px 18px;margin:4px;background:#e8f5e9;color:#2e7d32;text-decoration:none;border-radius:20px;font-weight:bold;font-size:14px;border:1px solid #c8e6c9">${currSymbol(f.currency||'ILS')}${a}</a>`
+            ).join('');
+
             return `<!DOCTYPE html>
 <html dir="rtl" lang="he">
 <head><meta charset="UTF-8"></head>
@@ -1096,12 +1140,14 @@
         <div style="font-size:11px;color:#42a5f5">${frProg} מהיעד (${frGoal})</div>
       </td>
     </tr></table>
-    <div style="background:#f5f5f5;border-radius:12px;padding:20px;text-align:center;margin-bottom:20px">
-      <div style="font-size:16px;color:#333;margin-bottom:12px">כל תרומה משנה! תרמו דרך ${frName}</div>
-      <a href="${frUrl}" style="display:inline-block;padding:14px 40px;background:linear-gradient(135deg,#b88947,#e0c67f);color:#1a1a2e;text-decoration:none;border-radius:30px;font-weight:bold;font-size:16px">לתרומה דרך ${frName} →</a>
+    <div style="background:#f5f5f5;border-radius:12px;padding:20px;text-align:center;margin-bottom:15px">
+      <div style="font-size:16px;color:#333;margin-bottom:8px">בחרו סכום ותרמו דרך ${frName}:</div>
+      <div style="margin-bottom:12px">${amountBtns}</div>
+      <a href="${frUrl}" style="display:inline-block;padding:14px 40px;background:linear-gradient(135deg,#b88947,#e0c67f);color:#1a1a2e;text-decoration:none;border-radius:30px;font-weight:bold;font-size:16px">לתרומה בסכום אחר →</a>
     </div>
-    <div style="text-align:center;font-size:12px;color:#999;padding:10px 0;border-top:1px solid #eee">
-      ${frName} | ${frAmount} | ${frProg} מהיעד
+    <div style="text-align:center;font-size:11px;color:#999;padding:10px 0;border-top:1px solid #eee">
+      <div>${frName} | ${frAmount} | ${frProg} מהיעד</div>
+      <div style="margin-top:6px;color:#bbb">* הסכומים נכונים לזמן שליחת המייל: ${now}</div>
     </div>
   </div>
 </div>
@@ -1169,6 +1215,38 @@
                 window.open('mailto:' + encodeURIComponent(email) + '?subject=' + encodeURIComponent(subject) + '&body=' + body);
                 statusEl.className = 'email-status success';
                 statusEl.textContent = '📧 נפתח חלון מייל ל-' + email + ' (שליחה ישירה דורשת הגדרת Resend API)';
+            }
+        }
+
+        // ========== WHATSAPP ==========
+        function sendWhatsApp(noPhone) {
+            if (!currentFundraiser) return;
+            const f = currentFundraiser;
+            const s = f.statistics || {};
+            const sym = currSymbol(f.currency || 'ILS');
+            const frName = f.name || 'ללא שם';
+            const frAmount = sym + fmt(s.donationsAmount || 0);
+            const frUrl = getFrUrl(f);
+            const timeLeft = getTimeLeftText();
+            const campaignILS = prevData ? '₪' + fmt(prevData.totalProgress.amounts.ILS || 0) : '---';
+
+            const text = 
+                '⭐ *קמפיין תורתך באהבה - ישיבת תפארת התורה* ⭐\n\n' +
+                '⏱ זמן שנותר: ' + timeLeft + '\n' +
+                '🏛 הישיבה גייסה: ' + campaignILS + '\n' +
+                '👤 ' + frName + ' גייס: ' + frAmount + ' (' + (s.progress || 0) + '% מהיעד)\n\n' +
+                '💰 *לתרומה דרך ' + frName + ':*\n' + frUrl + '\n\n' +
+                'כל תרומה משנה! תודה רבה 🙏\n\n' +
+                '_* הסכומים נכונים לזמן השליחה_';
+
+            const encoded = encodeURIComponent(text);
+            if (noPhone) {
+                window.open('https://api.whatsapp.com/send?text=' + encoded, '_blank');
+            } else {
+                let phone = (document.getElementById('waPhone').value || '').replace(/\D/g, '');
+                if (phone.startsWith('0')) phone = '972' + phone.substring(1);
+                if (!phone) { window.open('https://api.whatsapp.com/send?text=' + encoded, '_blank'); return; }
+                window.open('https://api.whatsapp.com/send?phone=' + phone + '&text=' + encoded, '_blank');
             }
         }
 

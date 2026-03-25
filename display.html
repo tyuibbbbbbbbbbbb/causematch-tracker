@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>תצוגת קמפיין - ישיבת תפארת התורה</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0f0c29 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 20px 30px 10px;
+            background: linear-gradient(180deg, rgba(15,12,41,0.95), transparent);
+        }
+        .header h1 { font-size: 2.5em; color: #e0c67f; text-shadow: 0 2px 20px rgba(224,198,127,0.4); }
+        .header .sub { color: #aaa; font-size: 1em; margin-top: 4px; }
+
+        /* Stats bar */
+        .stats-bar {
+            display: flex; justify-content: center; gap: 30px; padding: 15px 30px;
+            flex-wrap: wrap;
+        }
+        .stat-box {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px; padding: 15px 30px; text-align: center; min-width: 160px;
+        }
+        .stat-box .val { font-size: 2em; font-weight: bold; color: #4fc3f7; direction: ltr; }
+        .stat-box .lbl { font-size: 0.8em; color: #aaa; margin-top: 4px; }
+        .stat-box.gold .val { color: #e0c67f; }
+        .stat-box.green .val { color: #81c784; }
+
+        /* Progress bar */
+        .progress-wrap { padding: 0 40px 15px; }
+        .progress-outer {
+            background: rgba(255,255,255,0.08); border-radius: 20px; height: 30px;
+            overflow: hidden; position: relative;
+        }
+        .progress-inner {
+            height: 100%; border-radius: 20px;
+            background: linear-gradient(90deg, #b88947, #e0c67f, #f5e6b8);
+            transition: width 1s ease;
+            display: flex; align-items: center; justify-content: flex-end; padding-right: 12px;
+            font-weight: bold; color: #1a1a2e; font-size: 0.9em;
+        }
+
+        /* Timer */
+        .timer-bar {
+            text-align: center; padding: 5px 0 15px;
+            font-size: 1.1em; color: #ffb74d;
+        }
+
+        /* Main grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding: 0 20px 20px;
+            height: calc(100vh - 250px);
+        }
+
+        .panel {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 15px;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+        .panel h3 {
+            color: #e0c67f; font-size: 1em; margin-bottom: 10px;
+            flex-shrink: 0;
+        }
+        .panel canvas { width: 100% !important; }
+        .chart-wrap { flex: 1; min-height: 0; }
+
+        /* Donors feed */
+        .donors-feed { flex: 1; overflow-y: auto; }
+        .donor-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            display: flex; align-items: center; gap: 14px;
+            animation: slideIn 0.5s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .donor-card .d-icon {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: linear-gradient(135deg, #b88947, #e0c67f);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3em; flex-shrink: 0;
+        }
+        .donor-card .d-info { flex: 1; }
+        .donor-card .d-name { font-weight: bold; font-size: 1em; color: #fff; }
+        .donor-card .d-via { font-size: 0.8em; color: #4fc3f7; margin-top: 2px; }
+        .donor-card .d-comment { font-size: 0.75em; color: #aaa; margin-top: 3px; font-style: italic; }
+        .donor-card .d-amount {
+            font-size: 1.3em; font-weight: bold; direction: ltr; text-align: left;
+            flex-shrink: 0;
+        }
+        .donor-card .d-amount.usd { color: #81c784; }
+        .donor-card .d-amount.ils { color: #4fc3f7; }
+        .donor-card .d-amount.gbp { color: #ce93d8; }
+
+        /* New donation alert overlay */
+        .big-alert {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 999; opacity: 0; pointer-events: none;
+            transition: opacity 0.4s;
+        }
+        .big-alert.show { opacity: 1; pointer-events: auto; }
+        .big-alert-inner {
+            text-align: center;
+            animation: popIn 0.5s ease;
+        }
+        @keyframes popIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .big-alert .ba-icon { font-size: 5em; }
+        .big-alert .ba-title { font-size: 3em; color: #e0c67f; margin: 15px 0; font-weight: bold; }
+        .big-alert .ba-amount { font-size: 4em; color: #81c784; font-weight: bold; direction: ltr; }
+        .big-alert .ba-donor { font-size: 1.5em; color: #4fc3f7; margin-top: 10px; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+
+        @media (max-width: 900px) {
+            .main-grid { grid-template-columns: 1fr; height: auto; }
+        }
+    </style>
+</head>
+<body>
+    <div class="big-alert" id="bigAlert">
+        <div class="big-alert-inner">
+            <div class="ba-icon">&#127881;</div>
+            <div class="ba-title">תרומה חדשה!</div>
+            <div class="ba-amount" id="baAmount"></div>
+            <div class="ba-donor" id="baDonor"></div>
+        </div>
+    </div>
+
+    <div class="header">
+        <h1>&#11088; ישיבת תפארת התורה &#11088;</h1>
+        <div class="sub">מעקב קמפיין בזמן אמת - תורתך באהבה</div>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-box gold">
+            <div class="val" id="dTotalILS">---</div>
+            <div class="lbl">גויס &#8362;</div>
+        </div>
+        <div class="stat-box">
+            <div class="val" id="dTotalUSD">---</div>
+            <div class="lbl">גויס $</div>
+        </div>
+        <div class="stat-box green">
+            <div class="val" id="dDonors">---</div>
+            <div class="lbl">תורמים</div>
+        </div>
+        <div class="stat-box">
+            <div class="val" id="dMatch">---</div>
+            <div class="lbl">מצ'ינג</div>
+        </div>
+    </div>
+
+    <div class="progress-wrap">
+        <div class="progress-outer">
+            <div class="progress-inner" id="dProgress" style="width:0%">0%</div>
+        </div>
+    </div>
+    <div class="timer-bar">&#9200; <span id="dTimer">---</span></div>
+
+    <div class="main-grid">
+        <!-- Left: Recent donors feed -->
+        <div class="panel">
+            <h3>&#128176; תורמים אחרונים</h3>
+            <div class="donors-feed" id="donorsFeed">
+                <div style="color:#888;text-align:center;padding:40px">טוען תורמים...</div>
+            </div>
+        </div>
+
+        <!-- Right: Charts stacked -->
+        <div class="panel" style="display:flex;flex-direction:column;gap:10px">
+            <div style="flex:1;min-height:0">
+                <h3>&#127942; שגרירים - טופ 15</h3>
+                <div class="chart-wrap"><canvas id="dAmbChart"></canvas></div>
+            </div>
+            <div style="flex:1;min-height:0">
+                <h3>&#127963; קהילות</h3>
+                <div class="chart-wrap"><canvas id="dCommChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script>
+        const CAMPAIGN_API = '/api/public/campaign/yth';
+        const LAYER_API_BASE = '/api/public/layer-items?campaignId=5162';
+        const DONATIONS_API = '/api/public/donations?campaignId=5162&paginate=30&page=1';
+
+        let prevDonationIds = new Set();
+        let campaignEndAt = null;
+
+        function fmt(n) { return Math.round(n).toLocaleString('en-US'); }
+
+        // Timer
+        function updateTimer() {
+            if (!campaignEndAt) return;
+            const diff = new Date(campaignEndAt) - new Date();
+            if (diff <= 0) { document.getElementById('dTimer').textContent = 'הקמפיין הסתיים'; return; }
+            const d = Math.floor(diff / 86400000);
+            const h = Math.floor((diff % 86400000) / 3600000);
+            const m = Math.floor((diff % 3600000) / 60000);
+            const s = Math.floor((diff % 60000) / 1000);
+            document.getElementById('dTimer').textContent =
+                (d > 0 ? d + ' ימים ' : '') + h + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+        }
+        setInterval(updateTimer, 1000);
+
+        // Charts
+        function makeHChart(id) {
+            return new Chart(document.getElementById(id).getContext('2d'), {
+                type: 'bar',
+                data: { labels: [], datasets: [
+                    { label: 'גויס', data: [], backgroundColor: 'rgba(79,195,247,0.7)', borderColor: '#4fc3f7', borderWidth: 1, borderRadius: 4 },
+                    { label: 'יעד', data: [], backgroundColor: 'rgba(255,255,255,0.08)', borderColor: 'rgba(255,255,255,0.2)', borderWidth: 1, borderRadius: 4 }
+                ]},
+                options: {
+                    responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+                    animation: { duration: 600 },
+                    plugins: { legend: { labels: { color: '#aaa', font: { size: 10 } } } },
+                    scales: {
+                        x: { ticks: { color: '#888', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { ticks: { color: '#ddd', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.03)' } }
+                    }
+                }
+            });
+        }
+
+        const ambChart = makeHChart('dAmbChart');
+        const commChart = makeHChart('dCommChart');
+
+        function updateChart(chart, items) {
+            chart.data.labels = items.map(f => {
+                let n = f.name || '';
+                return n.length > 22 ? n.substring(0, 22) + '...' : n;
+            });
+            chart.data.datasets[0].data = items.map(f => (f.statistics || {}).donationsAmount || 0);
+            chart.data.datasets[1].data = items.map(f => f.goal || 0);
+            chart.update('none');
+        }
+
+        // Campaign data
+        async function fetchCampaign() {
+            try {
+                const r = await fetch(CAMPAIGN_API);
+                const data = await r.json();
+                const p = data.totalProgress;
+                const ils = p.amounts.ILS || 0, usd = p.amounts.USD || 0;
+                const count = p.count || 0;
+
+                document.getElementById('dTotalILS').textContent = '₪' + fmt(ils);
+                document.getElementById('dTotalUSD').textContent = '$' + fmt(usd);
+                document.getElementById('dDonors').textContent = fmt(count);
+                document.getElementById('dMatch').textContent = 'x' + (data.matchRatio || 0);
+
+                const pct = Math.min(ils / 800000 * 100, 100);
+                document.getElementById('dProgress').style.width = pct + '%';
+                document.getElementById('dProgress').textContent = pct.toFixed(1) + '%';
+
+                if (data.endAt) campaignEndAt = data.endAt;
+            } catch (e) {}
+        }
+
+        // Fundraisers
+        async function fetchFundraisers() {
+            try {
+                const layerUrl = p => LAYER_API_BASE + '&paginate=50&page=' + p;
+                const r1 = await fetch(layerUrl(1));
+                const d1 = await r1.json();
+                let all = [...d1.docs];
+                for (let pg = 2; pg <= d1.pages; pg++) {
+                    const r = await fetch(layerUrl(pg));
+                    const d = await r.json();
+                    if (d.docs) all = all.concat(d.docs);
+                }
+
+                const amb = all
+                    .filter(f => f.layer && f.layer.name === 'Ambassadors' && f.statistics && f.statistics.donationsAmount > 0)
+                    .sort((a, b) => (b.statistics.donationsAmount || 0) - (a.statistics.donationsAmount || 0))
+                    .slice(0, 15);
+                updateChart(ambChart, amb);
+
+                const comm = all
+                    .filter(f => f.layer && f.layer.name === 'Communities' && f.statistics && f.statistics.donationsAmount > 0)
+                    .sort((a, b) => (b.statistics.donationsAmount || 0) - (a.statistics.donationsAmount || 0))
+                    .slice(0, 15);
+                updateChart(commChart, comm);
+            } catch (e) {}
+        }
+
+        // Donations feed
+        async function fetchDonations() {
+            try {
+                const r = await fetch(DONATIONS_API);
+                const data = await r.json();
+                if (!data.docs) return;
+
+                // Check for new donations
+                const newOnes = data.docs.filter(d => !prevDonationIds.has(d.id));
+                if (prevDonationIds.size > 0 && newOnes.length > 0) {
+                    showBigAlert(newOnes[0]);
+                }
+                prevDonationIds = new Set(data.docs.map(d => d.id));
+
+                const feed = document.getElementById('donorsFeed');
+                feed.innerHTML = data.docs.map(d => {
+                    const name = d.isAnonymous ? 'אנונימי' : (d.name || 'אנונימי');
+                    const sym = d.currency === 'USD' ? '$' : d.currency === 'GBP' ? '£' : '₪';
+                    const cls = d.currency === 'USD' ? 'usd' : d.currency === 'GBP' ? 'gbp' : 'ils';
+                    const via = d.layerItem && d.layerItem.name ? d.layerItem.name : '';
+                    const comment = d.comment || '';
+
+                    return `<div class="donor-card">
+                        <div class="d-icon">&#128150;</div>
+                        <div class="d-info">
+                            <div class="d-name">${name}</div>
+                            ${via ? '<div class="d-via">דרך: ' + via + '</div>' : ''}
+                            ${comment ? '<div class="d-comment">"' + comment + '"</div>' : ''}
+                        </div>
+                        <div class="d-amount ${cls}">${sym}${fmt(d.amount)}</div>
+                    </div>`;
+                }).join('');
+            } catch (e) {}
+        }
+
+        function showBigAlert(d) {
+            const sym = d.currency === 'USD' ? '$' : d.currency === 'GBP' ? '£' : '₪';
+            const name = d.isAnonymous ? 'אנונימי' : (d.name || 'אנונימי');
+            document.getElementById('baAmount').textContent = sym + fmt(d.amount);
+            document.getElementById('baDonor').textContent = name + (d.layerItem && d.layerItem.name ? ' דרך ' + d.layerItem.name : '');
+            const el = document.getElementById('bigAlert');
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 5000);
+        }
+
+        // Start
+        fetchCampaign();
+        fetchFundraisers();
+        fetchDonations();
+        setInterval(fetchCampaign, 3000);
+        setInterval(fetchFundraisers, 15000);
+        setInterval(fetchDonations, 8000);
+    </script>
+</body>
+</html>
