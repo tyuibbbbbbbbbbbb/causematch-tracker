@@ -361,6 +361,22 @@
         }
         .sound-toggle:hover { background: rgba(255,255,255,0.2); }
 
+        /* ===== CHARTS ===== */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .chart-panel {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 20px;
+        }
+        .chart-panel h3 { color: #e0c67f; font-size: 1em; margin-bottom: 12px; }
+        .chart-panel canvas { width: 100% !important; max-height: 300px; }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 700px) {
             .fundraiser-item {
@@ -437,6 +453,18 @@
                 <div class="progress-bar-fill" id="progressFill" style="width: 0%"></div>
             </div>
             <div class="progress-percent" id="progressPercent">0%</div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-panel">
+                <h3>&#128200; גרף תורמים (בזמן אמת)</h3>
+                <canvas id="donorsChart"></canvas>
+            </div>
+            <div class="chart-panel">
+                <h3>&#127942; טופ 15 מתרימים לפי סכום</h3>
+                <canvas id="fundraisersChart"></canvas>
+            </div>
         </div>
 
         <!-- Fundraisers Section -->
@@ -519,6 +547,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script>
         const CAMPAIGN_API = '/api/public/campaign/yth';
         const LAYER_API_BASE = '/api/public/layer-items?campaignId=5162';
@@ -539,6 +568,128 @@
         let currentFilter = 'all';
         let currentSort = 'amount';
         let searchQuery = '';
+        let donorsTimeline = [];
+        let amountTimeline = [];
+        let donorsChart = null;
+        let fundraisersChart = null;
+        const MAX_TIMELINE = 120;
+
+        // ========== CHARTS INIT ==========
+        function initCharts() {
+            const ctxD = document.getElementById('donorsChart').getContext('2d');
+            donorsChart = new Chart(ctxD, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'מספר תורמים',
+                            data: [],
+                            borderColor: '#ffb74d',
+                            backgroundColor: 'rgba(255,183,77,0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            yAxisID: 'y',
+                            pointRadius: 1
+                        },
+                        {
+                            label: 'סכום ₪ (אלפים)',
+                            data: [],
+                            borderColor: '#4fc3f7',
+                            backgroundColor: 'rgba(79,195,247,0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            yAxisID: 'y1',
+                            pointRadius: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 400 },
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { labels: { color: '#aaa', font: { size: 11 } } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#666', maxTicksLimit: 10, font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { position: 'right', ticks: { color: '#ffb74d', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' }, title: { display: true, text: 'תורמים', color: '#ffb74d', font: { size: 11 } } },
+                        y1: { position: 'left', ticks: { color: '#4fc3f7', font: { size: 10 } }, grid: { drawOnChartArea: false }, title: { display: true, text: '₪ אלפים', color: '#4fc3f7', font: { size: 11 } } }
+                    }
+                }
+            });
+
+            const ctxF = document.getElementById('fundraisersChart').getContext('2d');
+            fundraisersChart = new Chart(ctxF, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'גויס',
+                            data: [],
+                            backgroundColor: 'rgba(79,195,247,0.7)',
+                            borderColor: '#4fc3f7',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'יעד',
+                            data: [],
+                            backgroundColor: 'rgba(255,255,255,0.08)',
+                            borderColor: 'rgba(255,255,255,0.2)',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    animation: { duration: 600 },
+                    plugins: {
+                        legend: { labels: { color: '#aaa', font: { size: 11 } } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#888', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { ticks: { color: '#ddd', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.03)' } }
+                    }
+                }
+            });
+        }
+        initCharts();
+
+        function updateDonorsChart(count, ils) {
+            const t = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            donorsTimeline.push({ t, count, ils });
+            if (donorsTimeline.length > MAX_TIMELINE) donorsTimeline.shift();
+
+            donorsChart.data.labels = donorsTimeline.map(d => d.t);
+            donorsChart.data.datasets[0].data = donorsTimeline.map(d => d.count);
+            donorsChart.data.datasets[1].data = donorsTimeline.map(d => Math.round(d.ils / 1000));
+            donorsChart.update('none');
+        }
+
+        function updateFundraisersChart() {
+            const sorted = [...allFundraisers]
+                .filter(f => f.statistics && f.statistics.donationsAmount > 0)
+                .sort((a, b) => (b.statistics.donationsAmount || 0) - (a.statistics.donationsAmount || 0))
+                .slice(0, 15);
+
+            const names = sorted.map(f => {
+                let n = f.name || '';
+                return n.length > 25 ? n.substring(0, 25) + '...' : n;
+            });
+            const raised = sorted.map(f => f.statistics.donationsAmount || 0);
+            const goals = sorted.map(f => f.goal || 0);
+
+            fundraisersChart.data.labels = names;
+            fundraisersChart.data.datasets[0].data = raised;
+            fundraisersChart.data.datasets[1].data = goals;
+            fundraisersChart.update('none');
+        }
 
         // ========== SOUND ==========
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -648,6 +799,7 @@
                 allFundraisers = all;
                 renderFundraisers();
                 updateFundraiserStats();
+                updateFundraisersChart();
             } catch (err) {
                 addLog('שגיאה בטעינת מתרימים: ' + err.message);
             }
@@ -836,6 +988,7 @@
                 const data = await r.json();
                 fetchCount++; errorCount = 0;
                 updateUI(data);
+                updateDonorsChart(data.totalProgress.count || 0, data.totalProgress.amounts.ILS || 0);
                 document.getElementById('statusDot').className = 'status-dot active';
                 document.getElementById('statusText').textContent = 'מחובר (#' + fetchCount + ')';
                 document.getElementById('lastUpdate').textContent = 'עדכון: ' + new Date().toLocaleTimeString('he-IL');
