@@ -5,111 +5,112 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>מעקב קמפיין - ישיבת תפארת התורה</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             color: #fff;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
         }
+
+        .container { max-width: 1100px; margin: 0 auto; }
 
         h1 {
             font-size: 2em;
             margin-bottom: 5px;
             text-shadow: 0 2px 10px rgba(184, 137, 71, 0.5);
             color: #e0c67f;
+            text-align: center;
         }
 
         .subtitle {
             font-size: 1.1em;
             color: #aaa;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+            text-align: center;
         }
 
+        /* ===== NEW DONATION ALERT ===== */
+        .new-donation-alert {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-200px);
+            background: linear-gradient(135deg, #1b5e20, #2e7d32);
+            border: 2px solid #4caf50;
+            border-radius: 16px;
+            padding: 20px 40px;
+            text-align: center;
+            z-index: 1000;
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 10px 40px rgba(76, 175, 80, 0.4);
+            min-width: 350px;
+        }
+        .new-donation-alert.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        .new-donation-alert .alert-icon { font-size: 2em; }
+        .new-donation-alert .alert-title { font-size: 1.3em; font-weight: bold; color: #a5d6a7; margin: 5px 0; }
+        .new-donation-alert .alert-amount { font-size: 2em; font-weight: bold; color: #fff; direction: ltr; }
+        .new-donation-alert .alert-count { font-size: 0.9em; color: #c8e6c9; margin-top: 5px; }
+
+        /* ===== TIMER ===== */
+        .timer-section {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .timer-label { font-size: 1em; color: #999; margin-bottom: 12px; }
+        .timer { display: flex; justify-content: center; gap: 15px; direction: ltr; }
+        .timer-unit {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 12px;
+            padding: 15px 20px;
+            min-width: 80px;
+        }
+        .timer-number { font-size: 2.5em; font-weight: bold; color: #e0c67f; line-height: 1; }
+        .timer-text { font-size: 0.75em; color: #888; margin-top: 4px; }
+        .timer-ended { font-size: 1.5em; color: #ef5350; font-weight: bold; }
+
+        /* ===== CARDS ===== */
         .dashboard {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            max-width: 900px;
-            width: 100%;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
         }
-
         .card {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255,255,255,0.08);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255,255,255,0.12);
             border-radius: 16px;
-            padding: 25px;
+            padding: 20px;
             text-align: center;
             transition: transform 0.3s, box-shadow 0.3s;
         }
-
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(184, 137, 71, 0.2);
-        }
-
-        .card-label {
-            font-size: 0.9em;
-            color: #999;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .card-value {
-            font-size: 2.2em;
-            font-weight: bold;
-            color: #e0c67f;
-            direction: ltr;
-        }
-
+        .card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(184,137,71,0.2); }
+        .card-label { font-size: 0.85em; color: #999; margin-bottom: 6px; letter-spacing: 1px; }
+        .card-value { font-size: 2em; font-weight: bold; color: #e0c67f; direction: ltr; }
         .card-value.ils { color: #4fc3f7; }
         .card-value.usd { color: #81c784; }
         .card-value.gbp { color: #ce93d8; }
         .card-value.count { color: #ffb74d; }
         .card-value.match { color: #ef5350; }
+        .card-sub { font-size: 0.8em; color: #777; margin-top: 4px; }
+        .card-percent { font-size: 0.9em; color: #e0c67f; margin-top: 4px; font-weight: bold; }
 
-        .card-sub {
-            font-size: 0.85em;
-            color: #777;
-            margin-top: 5px;
-        }
-
-        /* Progress Bar */
-        .progress-section {
-            max-width: 900px;
-            width: 100%;
-            margin-bottom: 30px;
-        }
-
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 1em;
-        }
-
+        /* ===== PROGRESS ===== */
+        .progress-section { margin-bottom: 25px; }
+        .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 1em; }
         .progress-bar-bg {
-            width: 100%;
-            height: 28px;
-            background: rgba(255, 255, 255, 0.1);
+            width: 100%; height: 28px;
+            background: rgba(255,255,255,0.1);
             border-radius: 14px;
             overflow: hidden;
             position: relative;
         }
-
         .progress-bar-fill {
             height: 100%;
             background: linear-gradient(90deg, #b88947, #e0c67f);
@@ -117,264 +118,421 @@
             transition: width 1s ease;
             position: relative;
         }
-
         .progress-bar-fill::after {
             content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
             animation: shimmer 2s infinite;
         }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        .progress-percent { text-align: center; margin-top: 8px; font-size: 1.2em; color: #e0c67f; font-weight: bold; }
 
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        .progress-percent {
-            text-align: center;
-            margin-top: 8px;
-            font-size: 1.2em;
-            color: #e0c67f;
-            font-weight: bold;
-        }
-
-        /* Timer */
-        .timer-section {
-            max-width: 900px;
-            width: 100%;
-            text-align: center;
+        /* ===== DONOR STATS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 15px;
             margin-bottom: 25px;
         }
-
-        .timer-label {
-            font-size: 1em;
-            color: #999;
-            margin-bottom: 12px;
+        .stats-panel {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 20px;
         }
-
-        .timer {
+        .stats-panel h3 { color: #e0c67f; font-size: 1em; margin-bottom: 12px; }
+        .stat-row {
             display: flex;
-            justify-content: center;
-            gap: 15px;
-            direction: ltr;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
+        .stat-row:last-child { border-bottom: none; }
+        .stat-label { color: #999; font-size: 0.9em; }
+        .stat-value { color: #fff; font-size: 1em; font-weight: bold; direction: ltr; }
 
-        .timer-unit {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 12px;
-            padding: 15px 20px;
-            min-width: 80px;
+        /* ===== CURRENCY BARS ===== */
+        .currency-bar-container { margin-top: 6px; }
+        .currency-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
         }
-
-        .timer-number {
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #e0c67f;
-            line-height: 1;
+        .currency-bar-label { min-width: 35px; font-size: 0.85em; color: #999; text-align: center; }
+        .currency-bar-bg {
+            flex: 1; height: 22px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 11px;
+            overflow: hidden;
+            position: relative;
         }
-
-        .timer-text {
+        .currency-bar-fill {
+            height: 100%;
+            border-radius: 11px;
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 8px;
             font-size: 0.75em;
-            color: #888;
-            margin-top: 4px;
-        }
-
-        .timer-ended {
-            font-size: 1.5em;
-            color: #ef5350;
             font-weight: bold;
+            color: #fff;
+            min-width: fit-content;
         }
+        .currency-bar-fill.ils-bar { background: linear-gradient(90deg, #0277bd, #4fc3f7); }
+        .currency-bar-fill.usd-bar { background: linear-gradient(90deg, #2e7d32, #81c784); }
+        .currency-bar-fill.gbp-bar { background: linear-gradient(90deg, #6a1b9a, #ce93d8); }
+        .currency-bar-amount { min-width: 100px; text-align: left; font-size: 0.85em; color: #aaa; direction: ltr; }
 
-        /* Status & Log */
+        /* ===== DONATION HISTORY ===== */
+        .history-section {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .history-section h3 { color: #e0c67f; font-size: 1em; margin-bottom: 12px; }
+        .history-list { max-height: 250px; overflow-y: auto; }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            margin-bottom: 6px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 10px;
+            border-right: 3px solid #4caf50;
+            animation: slideIn 0.5s ease;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .history-item .hi-time { color: #666; font-size: 0.8em; }
+        .history-item .hi-info { color: #aaa; font-size: 0.9em; }
+        .history-item .hi-amount { color: #81c784; font-size: 1.1em; font-weight: bold; direction: ltr; }
+        .history-empty { color: #555; text-align: center; padding: 20px; font-size: 0.9em; }
+
+        /* ===== STATUS ===== */
         .status-bar {
-            max-width: 900px;
-            width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 0.85em;
             color: #666;
         }
-
         .status-dot {
             display: inline-block;
-            width: 8px;
-            height: 8px;
+            width: 8px; height: 8px;
             border-radius: 50%;
             margin-left: 6px;
             animation: pulse 2s infinite;
         }
-
         .status-dot.active { background: #4caf50; }
         .status-dot.error { background: #ef5350; animation: none; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
+        /* ===== LOG ===== */
         .change-log {
-            max-width: 900px;
-            width: 100%;
-            margin-top: 20px;
-            max-height: 200px;
+            margin-top: 15px;
+            max-height: 180px;
             overflow-y: auto;
             background: rgba(0,0,0,0.3);
             border-radius: 12px;
             padding: 15px;
         }
-
-        .change-log-title {
-            font-size: 0.95em;
-            color: #e0c67f;
-            margin-bottom: 8px;
-        }
-
+        .change-log-title { font-size: 0.95em; color: #e0c67f; margin-bottom: 8px; }
         .change-entry {
-            font-size: 0.82em;
-            color: #aaa;
+            font-size: 0.82em; color: #aaa;
             padding: 4px 0;
             border-bottom: 1px solid rgba(255,255,255,0.05);
-            direction: ltr;
-            text-align: left;
+            direction: ltr; text-align: left;
         }
-
         .change-entry .up { color: #81c784; }
         .change-entry .time { color: #666; }
+
+        /* ===== SOUND TOGGLE ===== */
+        .sound-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            width: 45px; height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.3em;
+            z-index: 100;
+            transition: background 0.3s;
+        }
+        .sound-toggle:hover { background: rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
-    <h1>ישיבת תפארת התורה</h1>
-    <div class="subtitle">מעקב קמפיין בזמן אמת - תורתך באהבה</div>
-
-    <!-- Timer -->
-    <div class="timer-section">
-        <div class="timer-label">זמן שנותר לסיום הקמפיין</div>
-        <div class="timer" id="timer"></div>
+    <!-- New Donation Alert -->
+    <div class="new-donation-alert" id="donationAlert">
+        <div class="alert-icon">&#127881;</div>
+        <div class="alert-title">תרומה חדשה!</div>
+        <div class="alert-amount" id="alertAmount">+₪0</div>
+        <div class="alert-count" id="alertCount">תורם מספר 0</div>
     </div>
 
-    <!-- Cards -->
-    <div class="dashboard">
-        <div class="card">
-            <div class="card-label">סכום בשקלים</div>
-            <div class="card-value ils" id="amountILS">---</div>
-            <div class="card-sub">יעד: ₪800,000</div>
-        </div>
-        <div class="card">
-            <div class="card-label">סכום בדולרים</div>
-            <div class="card-value usd" id="amountUSD">---</div>
-        </div>
-        <div class="card">
-            <div class="card-label">סכום בליש"ט</div>
-            <div class="card-value gbp" id="amountGBP">---</div>
-        </div>
-        <div class="card">
-            <div class="card-label">מספר תורמים</div>
-            <div class="card-value count" id="donorsCount">---</div>
-        </div>
-        <div class="card">
-            <div class="card-label">סה"כ תרומות (כולל מצ'ינג)</div>
-            <div class="card-value" id="totalSum">---</div>
-        </div>
-        <div class="card">
-            <div class="card-label">יחס מצ'ינג נוכחי</div>
-            <div class="card-value match" id="matchRatio">---</div>
-        </div>
-    </div>
+    <!-- Sound Toggle -->
+    <div class="sound-toggle" id="soundToggle" title="הפעל/כבה צליל">&#128264;</div>
 
-    <!-- Progress Bar -->
-    <div class="progress-section">
-        <div class="progress-header">
-            <span id="progressRaised">₪0</span>
-            <span>יעד: ₪800,000</span>
-        </div>
-        <div class="progress-bar-bg">
-            <div class="progress-bar-fill" id="progressFill" style="width: 0%"></div>
-        </div>
-        <div class="progress-percent" id="progressPercent">0%</div>
-    </div>
+    <div class="container">
+        <h1>ישיבת תפארת התורה</h1>
+        <div class="subtitle">מעקב קמפיין בזמן אמת - תורתך באהבה</div>
 
-    <!-- Status -->
-    <div class="status-bar">
-        <div>
-            <span class="status-dot active" id="statusDot"></span>
-            <span id="statusText">מתחבר...</span>
+        <!-- Timer -->
+        <div class="timer-section">
+            <div class="timer-label">זמן שנותר לסיום הקמפיין</div>
+            <div class="timer" id="timer"></div>
         </div>
-        <div id="lastUpdate">עדכון אחרון: --:--:--</div>
-    </div>
 
-    <!-- Change Log -->
-    <div class="change-log">
-        <div class="change-log-title">יומן שינויים</div>
-        <div id="logEntries"></div>
+        <!-- Cards -->
+        <div class="dashboard">
+            <div class="card">
+                <div class="card-label">שקלים</div>
+                <div class="card-value ils" id="amountILS">---</div>
+                <div class="card-percent" id="percentILS">--% מהיעד</div>
+                <div class="card-sub">יעד: ₪800,000</div>
+            </div>
+            <div class="card">
+                <div class="card-label">דולרים</div>
+                <div class="card-value usd" id="amountUSD">---</div>
+                <div class="card-percent" id="percentUSD">--% מהיעד</div>
+                <div class="card-sub">יעד: $250,000</div>
+            </div>
+            <div class="card">
+                <div class="card-label">ליש"ט</div>
+                <div class="card-value gbp" id="amountGBP">---</div>
+                <div class="card-sub">ממוצע: <span id="avgGBP">---</span></div>
+            </div>
+            <div class="card">
+                <div class="card-label">מספר תורמים</div>
+                <div class="card-value count" id="donorsCount">---</div>
+                <div class="card-sub">ממוצע לתורם: <span id="avgPerDonor">---</span></div>
+            </div>
+            <div class="card">
+                <div class="card-label">סה"כ (כולל מצ'ינג)</div>
+                <div class="card-value" id="totalSum">---</div>
+                <div class="card-sub">מצ'ינג: <span id="matchRatio">---</span></div>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-section">
+            <div class="progress-header">
+                <span id="progressRaised">₪0</span>
+                <span>יעד: ₪800,000</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <div class="progress-percent" id="progressPercent">0%</div>
+        </div>
+
+        <!-- Donor Stats -->
+        <div class="stats-grid">
+            <!-- Currency Breakdown -->
+            <div class="stats-panel">
+                <h3>התפלגות לפי מטבע (מתוך סה"כ שקלים)</h3>
+                <div class="currency-bar-container">
+                    <div class="currency-bar-row">
+                        <div class="currency-bar-label">&#8362;</div>
+                        <div class="currency-bar-bg"><div class="currency-bar-fill ils-bar" id="barILS" style="width:0%"></div></div>
+                        <div class="currency-bar-amount" id="barILSText">---</div>
+                    </div>
+                    <div class="currency-bar-row">
+                        <div class="currency-bar-label">$</div>
+                        <div class="currency-bar-bg"><div class="currency-bar-fill usd-bar" id="barUSD" style="width:0%"></div></div>
+                        <div class="currency-bar-amount" id="barUSDText">---</div>
+                    </div>
+                    <div class="currency-bar-row">
+                        <div class="currency-bar-label">&#163;</div>
+                        <div class="currency-bar-bg"><div class="currency-bar-fill gbp-bar" id="barGBP" style="width:0%"></div></div>
+                        <div class="currency-bar-amount" id="barGBPText">---</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Averages & Stats -->
+            <div class="stats-panel">
+                <h3>נתונים לפי תורם</h3>
+                <div class="stat-row">
+                    <span class="stat-label">ממוצע בשקלים</span>
+                    <span class="stat-value" id="statAvgILS">---</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">ממוצע בדולרים</span>
+                    <span class="stat-value" id="statAvgUSD">---</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">סה"כ כולל מצ'ינג</span>
+                    <span class="stat-value" id="statTotal">---</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">תרומות לדקה (ממוצע)</span>
+                    <span class="stat-value" id="statRate">---</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">זמן מעקב</span>
+                    <span class="stat-value" id="statUptime">00:00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Donation History -->
+        <div class="history-section">
+            <h3>תרומות חדשות שזוהו (בזמן אמת)</h3>
+            <div class="history-list" id="historyList">
+                <div class="history-empty">ממתין לזיהוי תרומות חדשות...</div>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="status-bar">
+            <div>
+                <span class="status-dot active" id="statusDot"></span>
+                <span id="statusText">מתחבר...</span>
+            </div>
+            <div id="lastUpdate">עדכון אחרון: --:--:--</div>
+        </div>
+
+        <!-- Log -->
+        <div class="change-log">
+            <div class="change-log-title">יומן מערכת</div>
+            <div id="logEntries"></div>
+        </div>
     </div>
 
     <script>
         const API_URL = '/api/campaign';
         const GOAL_ILS = 800000;
-        const POLL_INTERVAL_MS = 3000;
+        const GOAL_USD = 250000;
+        const POLL_INTERVAL_MS = 1000;
 
         let prevData = null;
         let fetchCount = 0;
         let errorCount = 0;
+        let campaignEndAt = null;
+        let trackingStartTime = Date.now();
+        let startDonorsCount = null;
+        let soundEnabled = false;
+        let donationHistory = [];
+
+        // ========== SOUND ==========
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playDing() {
+            if (!soundEnabled) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.frequency.value = 800;
+            osc.type = 'sine';
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.5);
+        }
+
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').innerHTML = soundEnabled ? '&#128266;' : '&#128264;';
+            if (soundEnabled) audioCtx.resume();
+        });
 
         // ========== TIMER ==========
-        let campaignEndAt = null;
-
         function updateTimer() {
             const timerEl = document.getElementById('timer');
             if (!campaignEndAt) {
                 timerEl.innerHTML = '<div class="timer-ended">טוען...</div>';
                 return;
             }
-
-            const now = new Date();
-            const end = new Date(campaignEndAt);
-            const diff = end - now;
-
+            const diff = new Date(campaignEndAt) - new Date();
             if (diff <= 0) {
                 timerEl.innerHTML = '<div class="timer-ended">הקמפיין הסתיים!</div>';
                 return;
             }
-
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-            const minutes = Math.floor((diff / (1000 * 60)) % 60);
-            const seconds = Math.floor((diff / 1000) % 60);
-
+            const d = Math.floor(diff / 86400000);
+            const h = Math.floor((diff / 3600000) % 24);
+            const m = Math.floor((diff / 60000) % 60);
+            const s = Math.floor((diff / 1000) % 60);
             timerEl.innerHTML = `
-                <div class="timer-unit">
-                    <div class="timer-number">${String(days).padStart(2, '0')}</div>
-                    <div class="timer-text">ימים</div>
-                </div>
-                <div class="timer-unit">
-                    <div class="timer-number">${String(hours).padStart(2, '0')}</div>
-                    <div class="timer-text">שעות</div>
-                </div>
-                <div class="timer-unit">
-                    <div class="timer-number">${String(minutes).padStart(2, '0')}</div>
-                    <div class="timer-text">דקות</div>
-                </div>
-                <div class="timer-unit">
-                    <div class="timer-number">${String(seconds).padStart(2, '0')}</div>
-                    <div class="timer-text">שניות</div>
-                </div>
+                <div class="timer-unit"><div class="timer-number">${String(d).padStart(2,'0')}</div><div class="timer-text">ימים</div></div>
+                <div class="timer-unit"><div class="timer-number">${String(h).padStart(2,'0')}</div><div class="timer-text">שעות</div></div>
+                <div class="timer-unit"><div class="timer-number">${String(m).padStart(2,'0')}</div><div class="timer-text">דקות</div></div>
+                <div class="timer-unit"><div class="timer-number">${String(s).padStart(2,'0')}</div><div class="timer-text">שניות</div></div>
             `;
         }
-
         setInterval(updateTimer, 1000);
 
+        // ========== UPTIME ==========
+        function updateUptime() {
+            const elapsed = Math.floor((Date.now() - trackingStartTime) / 1000);
+            const m = Math.floor(elapsed / 60);
+            const s = elapsed % 60;
+            const h = Math.floor(m / 60);
+            document.getElementById('statUptime').textContent =
+                h > 0 ? `${h}:${String(m%60).padStart(2,'0')}:${String(s).padStart(2,'0')}` : `${m}:${String(s).padStart(2,'0')}`;
+        }
+        setInterval(updateUptime, 1000);
+
         // ========== FORMAT ==========
-        function formatNumber(num, decimals = 0) {
-            return Number(num).toLocaleString('en-US', {
-                minimumFractionDigits: decimals,
-                maximumFractionDigits: decimals
-            });
+        function fmt(num, dec = 0) {
+            return Number(num).toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+        }
+
+        // ========== ALERT ==========
+        function showDonationAlert(amountILS, newCount) {
+            const el = document.getElementById('donationAlert');
+            document.getElementById('alertAmount').textContent = '+₪' + fmt(amountILS);
+            document.getElementById('alertCount').textContent = `תורם מספר ${fmt(newCount)}`;
+            el.classList.add('show');
+            playDing();
+            setTimeout(() => el.classList.remove('show'), 4000);
+        }
+
+        // ========== ADD TO HISTORY ==========
+        function addToHistory(diffILS, diffUSD, diffGBP, newDonors, totalCount) {
+            const time = new Date().toLocaleTimeString('he-IL');
+            const parts = [];
+            if (diffILS > 0) parts.push(`+₪${fmt(diffILS)}`);
+            if (diffUSD > 0) parts.push(`+$${fmt(diffUSD)}`);
+            if (diffGBP > 0) parts.push(`+£${fmt(diffGBP)}`);
+
+            const item = {
+                time,
+                donors: newDonors,
+                amounts: parts.join(' | '),
+                totalCount
+            };
+            donationHistory.unshift(item);
+            if (donationHistory.length > 50) donationHistory.pop();
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const el = document.getElementById('historyList');
+            if (donationHistory.length === 0) {
+                el.innerHTML = '<div class="history-empty">ממתין לזיהוי תרומות חדשות...</div>';
+                return;
+            }
+            el.innerHTML = donationHistory.map((h, i) => `
+                <div class="history-item" ${i === 0 ? 'style="border-right-color: #e0c67f;"' : ''}>
+                    <span class="hi-time">${h.time}</span>
+                    <span class="hi-info">+${h.donors} תורמים (#${fmt(h.totalCount)})</span>
+                    <span class="hi-amount">${h.amounts}</span>
+                </div>
+            `).join('');
         }
 
         // ========== LOG ==========
@@ -385,10 +543,7 @@
             entry.className = 'change-entry';
             entry.innerHTML = `<span class="time">[${time}]</span> ${message}`;
             logEl.prepend(entry);
-
-            while (logEl.children.length > 50) {
-                logEl.removeChild(logEl.lastChild);
-            }
+            while (logEl.children.length > 50) logEl.removeChild(logEl.lastChild);
         }
 
         // ========== UPDATE UI ==========
@@ -401,37 +556,94 @@
             const donationsSum = data.donationsSum || 0;
             const matchRatio = data.matchRatio || 0;
 
-            document.getElementById('amountILS').textContent = '₪' + formatNumber(ils);
-            document.getElementById('amountUSD').textContent = '$' + formatNumber(usd);
-            document.getElementById('amountGBP').textContent = '£' + formatNumber(gbp);
-            document.getElementById('donorsCount').textContent = formatNumber(count);
-            document.getElementById('totalSum').textContent = '₪' + formatNumber(donationsSum);
+            if (startDonorsCount === null) startDonorsCount = count;
+
+            // Cards
+            document.getElementById('amountILS').textContent = '₪' + fmt(ils);
+            document.getElementById('amountUSD').textContent = '$' + fmt(usd);
+            document.getElementById('amountGBP').textContent = '£' + fmt(gbp);
+            document.getElementById('donorsCount').textContent = fmt(count);
+            document.getElementById('totalSum').textContent = '₪' + fmt(donationsSum);
             document.getElementById('matchRatio').textContent = 'x' + matchRatio;
 
-            // Progress
-            const percent = Math.min((ils / GOAL_ILS) * 100, 100);
+            // Percentages
+            const pctILS = (ils / GOAL_ILS * 100);
+            const pctUSD = (usd / GOAL_USD * 100);
+            document.getElementById('percentILS').textContent = pctILS.toFixed(1) + '% מהיעד';
+            document.getElementById('percentUSD').textContent = pctUSD.toFixed(1) + '% מהיעד';
+
+            // Averages
+            if (count > 0) {
+                document.getElementById('avgPerDonor').textContent = '₪' + fmt(ils / count);
+                document.getElementById('avgGBP').textContent = '£' + fmt(gbp / count);
+            }
+
+            // Progress bar
+            const percent = Math.min(pctILS, 100);
             document.getElementById('progressFill').style.width = percent + '%';
-            document.getElementById('progressPercent').textContent = percent.toFixed(1) + '%';
-            document.getElementById('progressRaised').textContent = '₪' + formatNumber(ils);
+            document.getElementById('progressPercent').textContent = pctILS.toFixed(1) + '%';
+            document.getElementById('progressRaised').textContent = '₪' + fmt(ils);
+
+            // Currency breakdown bars (convert all to ILS for comparison)
+            const usdRate = 3.2;
+            const gbpRate = 4.324324;
+            const ilsInILS = ils;
+            const usdInILS = usd * usdRate;
+            const gbpInILS = gbp * gbpRate;
+            const totalILS = ilsInILS + usdInILS + gbpInILS;
+
+            if (totalILS > 0) {
+                const pILS = (ilsInILS / totalILS * 100);
+                const pUSD = (usdInILS / totalILS * 100);
+                const pGBP = (gbpInILS / totalILS * 100);
+                document.getElementById('barILS').style.width = pILS + '%';
+                document.getElementById('barILS').textContent = pILS.toFixed(0) + '%';
+                document.getElementById('barILSText').textContent = '₪' + fmt(ils) + ' (' + pILS.toFixed(1) + '%)';
+                document.getElementById('barUSD').style.width = pUSD + '%';
+                document.getElementById('barUSD').textContent = pUSD.toFixed(0) + '%';
+                document.getElementById('barUSDText').textContent = '$' + fmt(usd) + ' (' + pUSD.toFixed(1) + '%)';
+                document.getElementById('barGBP').style.width = pGBP + '%';
+                document.getElementById('barGBP').textContent = pGBP.toFixed(0) + '%';
+                document.getElementById('barGBPText').textContent = '£' + fmt(gbp) + ' (' + pGBP.toFixed(1) + '%)';
+            }
+
+            // Stats panel
+            if (count > 0) {
+                document.getElementById('statAvgILS').textContent = '₪' + fmt(ils / count);
+                document.getElementById('statAvgUSD').textContent = '$' + fmt(usd / count);
+            }
+            document.getElementById('statTotal').textContent = '₪' + fmt(donationsSum);
+
+            // Rate
+            const elapsedMin = (Date.now() - trackingStartTime) / 60000;
+            const newDonors = count - startDonorsCount;
+            if (elapsedMin > 0.5 && newDonors > 0) {
+                document.getElementById('statRate').textContent = (newDonors / elapsedMin).toFixed(1);
+            }
 
             // Timer
-            if (data.endAt) {
-                campaignEndAt = data.endAt;
-            }
+            if (data.endAt) campaignEndAt = data.endAt;
 
             // Detect changes
             if (prevData) {
                 const prevIls = prevData.totalProgress.amounts.ILS || 0;
+                const prevUsd = prevData.totalProgress.amounts.USD || 0;
+                const prevGbp = prevData.totalProgress.amounts.GBP || 0;
                 const prevCount = prevData.totalProgress.count || 0;
 
-                if (ils !== prevIls) {
-                    const diff = ils - prevIls;
-                    addLog(`<span class="up">+₪${formatNumber(diff)}</span> שקלים (סה"כ: ₪${formatNumber(ils)})`);
+                const diffIls = ils - prevIls;
+                const diffUsd = usd - prevUsd;
+                const diffGbp = gbp - prevGbp;
+                const diffCount = count - prevCount;
+
+                if (diffCount > 0) {
+                    showDonationAlert(diffIls, count);
+                    addToHistory(diffIls, diffUsd, diffGbp, diffCount, count);
+                    addLog(`<span class="up">+${diffCount} תורמים חדשים!</span> סה"כ: ${fmt(count)} | +₪${fmt(diffIls)}`);
+                } else if (diffIls !== 0) {
+                    addLog(`<span class="up">+₪${fmt(diffIls)}</span> (סה"כ: ₪${fmt(ils)})`);
                 }
-                if (count !== prevCount) {
-                    const diff = count - prevCount;
-                    addLog(`<span class="up">+${diff}</span> תורמים חדשים (סה"כ: ${formatNumber(count)})`);
-                }
+
                 if (data.matchRatio !== prevData.matchRatio) {
                     addLog(`יחס מצ'ינג השתנה ל-x${data.matchRatio}`);
                 }
@@ -443,34 +655,25 @@
         // ========== FETCH ==========
         async function fetchData() {
             try {
-                const response = await fetch(API_URL, {
-                    headers: { 'Accept': 'application/json' }
-                });
-
+                const response = await fetch(API_URL, { headers: { 'Accept': 'application/json' } });
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
                 const data = await response.json();
                 fetchCount++;
                 errorCount = 0;
-
                 updateUI(data);
-
-                // Status
                 document.getElementById('statusDot').className = 'status-dot active';
                 document.getElementById('statusText').textContent = `מחובר (בדיקה #${fetchCount})`;
-                document.getElementById('lastUpdate').textContent =
-                    'עדכון אחרון: ' + new Date().toLocaleTimeString('he-IL');
-
+                document.getElementById('lastUpdate').textContent = 'עדכון אחרון: ' + new Date().toLocaleTimeString('he-IL');
             } catch (err) {
                 errorCount++;
                 document.getElementById('statusDot').className = 'status-dot error';
-                document.getElementById('statusText').textContent = `שגיאה: ${err.message} (ניסיון ${errorCount})`;
-                addLog(`שגיאה: ${err.message}`);
+                document.getElementById('statusText').textContent = `שגיאה: ${err.message} (${errorCount})`;
+                if (errorCount <= 3) addLog(`שגיאה: ${err.message}`);
             }
         }
 
         // ========== START ==========
-        addLog('המעקב התחיל - מתחבר ל-API...');
+        addLog('המעקב התחיל - מתחבר ל-API (כל שנייה)...');
         fetchData();
         setInterval(fetchData, POLL_INTERVAL_MS);
     </script>
