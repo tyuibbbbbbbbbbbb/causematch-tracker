@@ -445,6 +445,10 @@
         .chart-panel .chart-tall { height: 400px; }
         .chart-panel .chart-short { height: 300px; }
 
+        /* ===== NOTO EMOJI ===== */
+        .ne { width: 1em; height: 1em; vertical-align: middle; display: inline-block; }
+        .ne-lg { width: 1.3em; height: 1.3em; vertical-align: middle; display: inline-block; }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 700px) {
             .fundraiser-item {
@@ -459,7 +463,7 @@
 <body>
     <!-- New Donation Alert -->
     <div class="new-donation-alert" id="donationAlert">
-        <div class="alert-icon">&#127881;</div>
+        <div class="alert-icon"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f389/512.gif" style="width:2em;height:2em"></div>
         <div class="alert-title">תרומה חדשה!</div>
         <div class="alert-amount" id="alertAmount">+₪0</div>
         <div class="alert-count" id="alertCount">תורם מספר 0</div>
@@ -468,7 +472,7 @@
     <div class="sound-toggle" id="soundToggle" title="הפעל/כבה צליל">&#128264;</div>
 
     <div class="container">
-        <h1>&#11088; ישיבת תפארת התורה &#11088;</h1>
+        <h1><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/2b50/512.gif" class="ne-lg"> ישיבת תפארת התורה <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/2b50/512.gif" class="ne-lg"></h1>
         <div class="subtitle">מעקב קמפיין בזמן אמת - תורתך באהבה</div>
 
         <!-- Timer -->
@@ -526,24 +530,24 @@
         <!-- Charts -->
         <div class="charts-full">
             <div class="chart-panel">
-                <h3>&#128176; תורמים אחרונים (שם + סכום)</h3>
+                <h3><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4b8/512.gif" class="ne-lg"> תורמים אחרונים (שם + סכום)</h3>
                 <div class="chart-tall"><canvas id="recentDonorsChart"></canvas></div>
             </div>
         </div>
         <div class="charts-grid">
             <div class="chart-panel">
-                <h3>&#127942; שגרירים - טופ 15 לפי סכום</h3>
+                <h3><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3c6/512.gif" class="ne-lg"> שגרירים - טופ 15 לפי סכום</h3>
                 <div class="chart-tall"><canvas id="ambassadorsChart"></canvas></div>
             </div>
             <div class="chart-panel">
-                <h3>&#127963; קהילות - לפי סכום</h3>
+                <h3><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3d8/512.gif" class="ne-lg"> קהילות - לפי סכום</h3>
                 <div class="chart-tall"><canvas id="communitiesChart"></canvas></div>
             </div>
         </div>
 
         <!-- Fundraisers Section (Ambassadors only) -->
         <div class="fundraisers-section">
-            <h3>&#128101; מתרימים / שגרירים (בזמן אמת)</h3>
+            <h3><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f465/512.gif" class="ne-lg"> מתרימים / שגרירים (בזמן אמת)</h3>
 
             <input type="text" class="search-box" id="searchBox" placeholder="חפש מתרים לפי שם...">
 
@@ -563,7 +567,7 @@
 
         <!-- Communities Section (separate) -->
         <div class="fundraisers-section">
-            <h3>&#127963; קהילות (בזמן אמת)</h3>
+            <h3><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3d8/512.gif" class="ne-lg"> קהילות (בזמן אמת)</h3>
 
             <input type="text" class="search-box" id="searchBoxComm" placeholder="חפש קהילה לפי שם...">
 
@@ -599,20 +603,20 @@
 
                 <!-- Donate with amount -->
                 <div class="donate-section">
-                    <h3>&#128176; תרום דרך המתרים הזה</h3>
+                    <h3><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4b0/512.gif" class="ne"> תרום דרך המתרים הזה</h3>
                     <div class="donate-row">
                         <input type="number" id="donateAmount" placeholder="הכנס סכום..." min="1">
-                        <button onclick="goToDonate()">&#10145; לתרומה עכשיו</button>
+                        <button onclick="goToDonate()"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/27a1/512.gif" class="ne"> לתרומה עכשיו</button>
                     </div>
-                    <a class="fr-page-link" id="frPageLink" href="#" target="_blank">&#128279; פתח את דף המתרים באתר CauseMatch</a>
+                    <a class="fr-page-link" id="frPageLink" href="#" target="_blank"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f517/512.gif" class="ne"> פתח את דף המתרים באתר CauseMatch</a>
                 </div>
 
                 <!-- Send email -->
                 <div class="email-section">
-                    <h3>&#128231; שלח לינק גיוס באימייל</h3>
+                    <h3><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4e7/512.gif" class="ne"> שלח לינק גיוס באימייל</h3>
                     <div class="email-row">
                         <input type="email" id="emailInput" placeholder="name@example.com" dir="ltr">
-                        <button onclick="sendEmail()">&#128228; שלח מייל</button>
+                        <button onclick="sendEmail()"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4e4/512.gif" class="ne"> שלח מייל</button>
                     </div>
                     <div class="email-status" id="emailStatus"></div>
                     <div class="email-preview" id="emailPreview">
@@ -623,12 +627,12 @@
 
                 <!-- WhatsApp -->
                 <div class="email-section" style="border-color:rgba(37,211,102,0.3);background:rgba(37,211,102,0.08)">
-                    <h3 style="color:#25d366">&#128172; שתף בוואטסאפ</h3>
+                    <h3 style="color:#25d366"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4ac/512.gif" class="ne"> שתף בוואטסאפ</h3>
                     <div class="email-row">
                         <input type="tel" id="waPhone" placeholder="מספר טלפון (למשל 0501234567)" dir="ltr">
-                        <button onclick="sendWhatsApp()" style="background:linear-gradient(135deg,#128c7e,#25d366)">&#128172; שלח</button>
+                        <button onclick="sendWhatsApp()" style="background:linear-gradient(135deg,#128c7e,#25d366)"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4ac/512.gif" class="ne"> שלח</button>
                     </div>
-                    <button onclick="sendWhatsApp(true)" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;background:rgba(37,211,102,0.15);color:#25d366;cursor:pointer;font-weight:bold;font-size:0.9em">&#128279; שתף לכל אחד (בלי מספר)</button>
+                    <button onclick="sendWhatsApp(true)" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;background:rgba(37,211,102,0.15);color:#25d366;cursor:pointer;font-weight:bold;font-size:0.9em"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f517/512.gif" class="ne"> שתף לכל אחד (בלי מספר)</button>
                 </div>
             </div>
         </div>

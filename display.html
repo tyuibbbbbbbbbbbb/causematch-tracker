@@ -12,7 +12,6 @@
             color: #fff;
             height: 100vh;
             overflow: hidden;
-            cursor: none;
         }
         .ne { width: 1em; height: 1em; vertical-align: middle; display: inline-block; }
         .ne-lg { width: 1.4em; height: 1.4em; }
@@ -31,7 +30,7 @@
             display: flex; align-items: center; justify-content: space-between;
             margin-bottom: 12px;
         }
-        .header-top h1 { font-size: 1.8em; color: #e0c67f; white-space: nowrap; text-shadow: 0 2px 15px rgba(224,198,127,0.3); }
+        .header-top h1 { font-size: 2.2em; color: #e0c67f; white-space: nowrap; text-shadow: 0 2px 15px rgba(224,198,127,0.3); }
         .header-top h1 .ne { width: 1.2em; height: 1.2em; }
 
         /* Timer - prominent */
@@ -42,8 +41,8 @@
             padding: 8px 28px;
             text-align: center;
         }
-        .timer-box .t-lbl { font-size: 0.7em; color: #ffb74d; }
-        .timer-box .t-val { font-size: 1.8em; font-weight: bold; color: #fff; direction: ltr; letter-spacing: 2px; }
+        .timer-box .t-lbl { font-size: 0.85em; color: #ffb74d; }
+        .timer-box .t-val { font-size: 2.2em; font-weight: bold; color: #fff; direction: ltr; letter-spacing: 2px; }
 
         /* Stats row */
         .stats-row {
@@ -59,8 +58,8 @@
         }
         .st-card .st-ico .ne { width: 1.6em; height: 1.6em; }
         .st-card .st-info {}
-        .st-card .st-val { font-size: 1.5em; font-weight: bold; direction: ltr; }
-        .st-card .st-lbl { font-size: 0.7em; color: #aaa; }
+        .st-card .st-val { font-size: 1.8em; font-weight: bold; direction: ltr; }
+        .st-card .st-lbl { font-size: 0.8em; color: #aaa; }
         .st-card.gold .st-val { color: #e0c67f; }
         .st-card.blue .st-val { color: #4fc3f7; }
         .st-card.green .st-val { color: #81c784; }
@@ -75,7 +74,7 @@
             padding: 10px 16px;
             display: flex; flex-direction: column; justify-content: center;
         }
-        .prog-card .p-lbl { font-size: 0.7em; color: #aaa; margin-bottom: 5px; }
+        .prog-card .p-lbl { font-size: 0.8em; color: #aaa; margin-bottom: 5px; }
         .prog-outer {
             background: rgba(255,255,255,0.08); border-radius: 10px; height: 20px;
             overflow: hidden;
@@ -92,10 +91,10 @@
         .donors-area {
             padding: 12px 20px 8px;
             flex: 1;
-            overflow-y: auto;
+            overflow: hidden;
             min-height: 0;
         }
-        .donors-area h3 { color: #e0c67f; font-size: 1em; margin-bottom: 10px; }
+        .donors-area h3 { color: #e0c67f; font-size: 1.1em; margin-bottom: 10px; }
         .donors-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
@@ -120,22 +119,22 @@
         .donor-sq .ds-top { display: flex; align-items: center; gap: 10px; }
         .donor-sq .ds-icon { flex-shrink: 0; }
         .donor-sq .ds-icon .ne { width: 1.6em; height: 1.6em; }
-        .donor-sq .ds-name { font-weight: bold; font-size: 0.95em; }
+        .donor-sq .ds-name { font-weight: bold; font-size: 1.05em; }
         .donor-sq .ds-amount {
-            font-size: 1.5em; font-weight: bold; direction: ltr; text-align: left;
+            font-size: 1.6em; font-weight: bold; direction: ltr; text-align: left;
             margin-top: 6px;
         }
         .donor-sq .ds-amount.usd { color: #81c784; }
         .donor-sq .ds-amount.ils { color: #4fc3f7; }
         .donor-sq .ds-amount.gbp { color: #ce93d8; }
-        .donor-sq .ds-via { font-size: 0.75em; color: #4fc3f7; margin-top: 3px; }
-        .donor-sq .ds-comment { font-size: 0.7em; color: #aaa; margin-top: 3px; font-style: italic; }
+        .donor-sq .ds-via { font-size: 0.8em; color: #4fc3f7; margin-top: 3px; }
+        .donor-sq .ds-comment { font-size: 0.75em; color: #aaa; margin-top: 3px; font-style: italic; }
 
         /* Charts row at bottom */
         .charts-row {
             display: flex; gap: 12px;
             padding: 0 20px 12px;
-            height: 170px;
+            height: 210px;
             flex-shrink: 0;
         }
         .chart-box {
@@ -147,7 +146,7 @@
         }
         .chart-box.wide { flex: 2; }
         .chart-box.narrow { flex: 1; }
-        .chart-box h4 { color: #e0c67f; font-size: 0.8em; margin-bottom: 4px; flex-shrink: 0; }
+        .chart-box h4 { color: #e0c67f; font-size: 0.9em; margin-bottom: 4px; flex-shrink: 0; }
         .chart-box .cw { flex: 1; min-height: 0; }
 
         /* Alert overlay */
@@ -266,7 +265,8 @@
     <script>
         const CAMPAIGN_API = '/api/public/campaign/yth';
         const LAYER_API_BASE = '/api/public/layer-items?campaignId=5162';
-        const DONATIONS_API = '/api/public/donations?campaignId=5162&paginate=30&page=1';
+        const DONATIONS_API = '/api/public/donations?campaignId=5162&paginate=50&page=1';
+        const MAX_DISPLAY_DONORS = 12;
 
         let prevDonationIds = new Set();
         let prevDonationHash = '';
@@ -426,10 +426,11 @@
                 prevDonationIds = new Set(data.docs.map(d => d.id));
                 prevDonationHash = newHash;
 
-                // Build new HTML - only new cards get animation
+                // Build new HTML - only show last N that fit on screen, no scrolling
+                const displayDocs = data.docs.slice(0, MAX_DISPLAY_DONORS);
                 const newIdSet = new Set(newOnes.map(d => d.id));
                 const feed = document.getElementById('donorsFeed');
-                feed.innerHTML = data.docs.map(d => buildDonorCard(d, !isFirstLoad && newIdSet.has(d.id))).join('');
+                feed.innerHTML = displayDocs.map(d => buildDonorCard(d, !isFirstLoad && newIdSet.has(d.id))).join('');
             } catch (e) {}
         }
 
