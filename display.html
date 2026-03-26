@@ -190,7 +190,7 @@
     <!-- Fullscreen prompt -->
     <div class="fs-prompt" id="fsPrompt" onclick="goFullscreen()">
         <div class="fs-prompt-inner">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4fa/512.gif" style="width:80px;height:80px">
+            <img src="/emojis/1f4fa.gif" style="width:80px;height:80px">
             <h2>לחץ למסך מלא</h2>
             <p>קמפיין תורתך באהבה - תצוגת מסך</p>
         </div>
@@ -199,7 +199,7 @@
     <!-- Alert -->
     <div class="big-alert" id="bigAlert">
         <div class="big-alert-inner">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f389/512.gif" class="ne-huge">
+            <img src="/emojis/1f389.gif" class="ne-huge">
             <div class="ba-title">תרומה חדשה!</div>
             <div class="ba-amount" id="baAmount"></div>
             <div class="ba-donor" id="baDonor"></div>
@@ -210,27 +210,27 @@
         <!-- Header -->
         <div class="header-area">
             <div class="header-top">
-                <h1><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/2b50/512.gif" class="ne"> קמפיין תורתך באהבה</h1>
+                <h1><img src="/emojis/2b50.gif" class="ne"> קמפיין תורתך באהבה</h1>
                 <div class="timer-box">
-                    <div class="t-lbl"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/23f0/512.gif" class="ne"> זמן שנותר</div>
+                    <div class="t-lbl"><img src="/emojis/23f0.gif" class="ne"> זמן שנותר</div>
                     <div class="t-val" id="dTimer">---</div>
                 </div>
             </div>
             <div class="stats-row">
                 <div class="st-card gold">
-                    <div class="st-ico"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4b0/512.gif" class="ne"></div>
+                    <div class="st-ico"><img src="/emojis/1f4b8.gif" class="ne"></div>
                     <div class="st-info"><div class="st-val" id="dTotalILS">---</div><div class="st-lbl">גויס &#8362;</div></div>
                 </div>
                 <div class="st-card blue">
-                    <div class="st-ico"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4b5/512.gif" class="ne"></div>
+                    <div class="st-ico"><img src="/emojis/1f48e.gif" class="ne"></div>
                     <div class="st-info"><div class="st-val" id="dTotalUSD">---</div><div class="st-lbl">גויס $</div></div>
                 </div>
                 <div class="st-card green">
-                    <div class="st-ico"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f465/512.gif" class="ne"></div>
+                    <div class="st-ico"><img src="/emojis/1f91d.gif" class="ne"></div>
                     <div class="st-info"><div class="st-val" id="dDonors">---</div><div class="st-lbl">תורמים</div></div>
                 </div>
                 <div class="st-card purple">
-                    <div class="st-ico"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/2728/512.gif" class="ne"></div>
+                    <div class="st-ico"><img src="/emojis/2728.gif" class="ne"></div>
                     <div class="st-info"><div class="st-val" id="dMatch">---</div><div class="st-lbl">מצ'ינג</div></div>
                 </div>
                 <div class="prog-card">
@@ -242,7 +242,7 @@
 
         <!-- Donors grid -->
         <div class="donors-area">
-            <h3><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4b8/512.gif" class="ne-lg"> תורמים אחרונים</h3>
+            <h3><img src="/emojis/1f4b8.gif" class="ne-lg"> תורמים אחרונים</h3>
             <div class="donors-grid" id="donorsFeed">
                 <div style="color:#888;text-align:center;padding:40px;grid-column:1/-1">טוען תורמים...</div>
             </div>
@@ -251,11 +251,11 @@
         <!-- Charts at bottom -->
         <div class="charts-row">
             <div class="chart-box wide">
-                <h4><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3c6/512.gif" class="ne"> מתרימים - טופ 15</h4>
+                <h4><img src="/emojis/1f3c6.gif" class="ne"> מתרימים - טופ 15</h4>
                 <div class="cw"><canvas id="dAmbChart"></canvas></div>
             </div>
             <div class="chart-box narrow">
-                <h4><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3d8/512.gif" class="ne"> קהילות</h4>
+                <h4><img src="/emojis/1f30d.gif" class="ne"> קהילות</h4>
                 <div class="cw"><canvas id="dCommChart"></canvas></div>
             </div>
         </div>
@@ -277,7 +277,7 @@
         // Noto emoji helper
         function noto(hex, cls) {
             cls = cls || 'ne';
-            return '<img src="https://fonts.gstatic.com/s/e/notoemoji/latest/' + hex + '/512.gif" class="' + cls + '">';
+            return '<img src="/emojis/' + hex + '.gif" class="' + cls + '">';
         }
 
         // Fullscreen
@@ -316,8 +316,8 @@
                     animation: { duration: 600 },
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { ticks: { color: '#ccc', font: { size: 8 }, maxRotation: 45, minRotation: 25 }, grid: { color: 'rgba(255,255,255,0.03)' } },
-                        y: { ticks: { color: '#888', font: { size: 8 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                        x: { ticks: { color: '#ccc', font: { size: 11 }, maxRotation: 45, minRotation: 25 }, grid: { color: 'rgba(255,255,255,0.03)' } },
+                        y: { ticks: { color: '#888', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
                     }
                 }
             });

@@ -29,6 +29,19 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // Serve static files from /emojis/
+    if (parsedUrl.pathname.startsWith('/emojis/')) {
+        const filePath = path.join(__dirname, parsedUrl.pathname);
+        fs.readFile(filePath, (err, content) => {
+            if (err) { res.writeHead(404); res.end('Not Found'); return; }
+            const ext = path.extname(filePath).toLowerCase();
+            const mimeTypes = { '.gif': 'image/gif', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml' };
+            res.writeHead(200, { 'Content-Type': mimeTypes[ext] || 'application/octet-stream', 'Cache-Control': 'public, max-age=86400' });
+            res.end(content);
+        });
+        return;
+    }
+
     // Serve HTML files
     const htmlFiles = { '/': 'index.html', '/index.html': 'index.html', '/demo': 'demo.html', '/demo.html': 'demo.html', '/display': 'display.html', '/display.html': 'display.html' };
     const file = htmlFiles[parsedUrl.pathname];
