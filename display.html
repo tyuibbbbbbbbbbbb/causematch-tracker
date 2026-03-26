@@ -12,55 +12,93 @@
             color: #fff;
             height: 100vh;
             overflow: hidden;
+            cursor: none;
         }
+        .ne { width: 1em; height: 1em; vertical-align: middle; display: inline-block; }
+        .ne-lg { width: 1.4em; height: 1.4em; }
+        .ne-xl { width: 2em; height: 2em; }
+        .ne-xxl { width: 3em; height: 3em; }
+        .ne-huge { width: 5em; height: 5em; }
 
-        /* Top bar - compact */
-        .top-bar {
+        /* Header area */
+        .header-area {
+            background: rgba(15,12,41,0.95);
+            border-bottom: 2px solid rgba(224,198,127,0.3);
+            padding: 14px 30px;
+            flex-shrink: 0;
+        }
+        .header-top {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 10px 25px;
-            background: rgba(15,12,41,0.9);
-            border-bottom: 1px solid rgba(224,198,127,0.2);
+            margin-bottom: 12px;
         }
-        .top-bar h1 { font-size: 1.4em; color: #e0c67f; white-space: nowrap; }
-        .top-stats {
-            display: flex; gap: 20px; align-items: center;
-        }
-        .ts-item {
+        .header-top h1 { font-size: 1.8em; color: #e0c67f; white-space: nowrap; text-shadow: 0 2px 15px rgba(224,198,127,0.3); }
+        .header-top h1 .ne { width: 1.2em; height: 1.2em; }
+
+        /* Timer - prominent */
+        .timer-box {
+            background: rgba(255,152,0,0.1);
+            border: 1px solid rgba(255,152,0,0.25);
+            border-radius: 14px;
+            padding: 8px 28px;
             text-align: center;
         }
-        .ts-item .ts-val { font-size: 1.3em; font-weight: bold; direction: ltr; }
-        .ts-item .ts-lbl { font-size: 0.65em; color: #aaa; }
-        .ts-item.gold .ts-val { color: #e0c67f; }
-        .ts-item.blue .ts-val { color: #4fc3f7; }
-        .ts-item.green .ts-val { color: #81c784; }
-        .ts-item.orange .ts-val { color: #ffb74d; }
+        .timer-box .t-lbl { font-size: 0.7em; color: #ffb74d; }
+        .timer-box .t-val { font-size: 1.8em; font-weight: bold; color: #fff; direction: ltr; letter-spacing: 2px; }
 
-        /* Progress bar inline */
-        .prog-bar {
-            flex: 1; max-width: 300px; margin: 0 20px;
+        /* Stats row */
+        .stats-row {
+            display: flex; gap: 16px; align-items: stretch;
         }
+        .st-card {
+            flex: 1;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 10px 16px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .st-card .st-ico .ne { width: 1.6em; height: 1.6em; }
+        .st-card .st-info {}
+        .st-card .st-val { font-size: 1.5em; font-weight: bold; direction: ltr; }
+        .st-card .st-lbl { font-size: 0.7em; color: #aaa; }
+        .st-card.gold .st-val { color: #e0c67f; }
+        .st-card.blue .st-val { color: #4fc3f7; }
+        .st-card.green .st-val { color: #81c784; }
+        .st-card.purple .st-val { color: #ce93d8; }
+
+        /* Progress bar */
+        .prog-card {
+            flex: 1.5;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 10px 16px;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .prog-card .p-lbl { font-size: 0.7em; color: #aaa; margin-bottom: 5px; }
         .prog-outer {
-            background: rgba(255,255,255,0.08); border-radius: 10px; height: 18px;
+            background: rgba(255,255,255,0.08); border-radius: 10px; height: 20px;
             overflow: hidden;
         }
         .prog-inner {
             height: 100%; border-radius: 10px;
-            background: linear-gradient(90deg, #b88947, #e0c67f);
+            background: linear-gradient(90deg, #b88947, #e0c67f, #f5e6b8);
             transition: width 1s ease;
-            display: flex; align-items: center; justify-content: flex-end; padding-right: 8px;
-            font-weight: bold; color: #1a1a2e; font-size: 0.7em;
+            display: flex; align-items: center; justify-content: flex-end; padding-right: 10px;
+            font-weight: bold; color: #1a1a2e; font-size: 0.75em;
         }
 
-        /* Donors grid - square cards */
+        /* Donors grid */
         .donors-area {
             padding: 12px 20px 8px;
             flex: 1;
             overflow-y: auto;
+            min-height: 0;
         }
-        .donors-area h3 { color: #e0c67f; font-size: 0.95em; margin-bottom: 10px; }
+        .donors-area h3 { color: #e0c67f; font-size: 1em; margin-bottom: 10px; }
         .donors-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
             gap: 10px;
         }
         .donor-sq {
@@ -69,20 +107,19 @@
             border-radius: 14px;
             padding: 14px;
             display: flex; flex-direction: column; justify-content: space-between;
-            min-height: 100px;
-            animation: fadeIn 0.4s ease;
+            min-height: 95px;
+            transition: opacity 0.3s, transform 0.3s;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
+        .donor-sq.new-card {
+            animation: cardPop 0.5s ease;
+        }
+        @keyframes cardPop {
+            from { opacity: 0; transform: scale(0.9); }
             to { opacity: 1; transform: scale(1); }
         }
         .donor-sq .ds-top { display: flex; align-items: center; gap: 10px; }
-        .donor-sq .ds-icon {
-            width: 36px; height: 36px; border-radius: 50%;
-            background: linear-gradient(135deg, #b88947, #e0c67f);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1em; flex-shrink: 0;
-        }
+        .donor-sq .ds-icon { flex-shrink: 0; }
+        .donor-sq .ds-icon .ne { width: 1.6em; height: 1.6em; }
         .donor-sq .ds-name { font-weight: bold; font-size: 0.95em; }
         .donor-sq .ds-amount {
             font-size: 1.5em; font-weight: bold; direction: ltr; text-align: left;
@@ -98,24 +135,25 @@
         .charts-row {
             display: flex; gap: 12px;
             padding: 0 20px 12px;
-            height: 180px;
+            height: 170px;
             flex-shrink: 0;
         }
         .chart-box {
-            flex: 1;
             background: rgba(255,255,255,0.04);
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: 12px;
             padding: 8px 12px;
             display: flex; flex-direction: column;
         }
+        .chart-box.wide { flex: 2; }
+        .chart-box.narrow { flex: 1; }
         .chart-box h4 { color: #e0c67f; font-size: 0.8em; margin-bottom: 4px; flex-shrink: 0; }
         .chart-box .cw { flex: 1; min-height: 0; }
 
-        /* Alert */
+        /* Alert overlay */
         .big-alert {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.88);
             display: flex; align-items: center; justify-content: center;
             z-index: 999; opacity: 0; pointer-events: none;
             transition: opacity 0.4s;
@@ -126,23 +164,43 @@
             from { transform: scale(0.5); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
-        .big-alert .ba-icon { font-size: 5em; }
-        .big-alert .ba-title { font-size: 3em; color: #e0c67f; margin: 15px 0; font-weight: bold; }
+        .big-alert .ba-title { font-size: 2.5em; color: #e0c67f; margin: 15px 0; font-weight: bold; }
         .big-alert .ba-amount { font-size: 4em; color: #81c784; font-weight: bold; direction: ltr; }
         .big-alert .ba-donor { font-size: 1.5em; color: #4fc3f7; margin-top: 10px; }
+
+        /* Fullscreen prompt */
+        .fs-prompt {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.92);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999; cursor: pointer;
+        }
+        .fs-prompt-inner { text-align: center; }
+        .fs-prompt-inner h2 { color: #e0c67f; font-size: 2.5em; margin-bottom: 15px; }
+        .fs-prompt-inner p { color: #aaa; font-size: 1.2em; }
+        .fs-prompt.hidden { display: none; }
 
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
 
-        /* Full height flex layout */
         .page-layout { display: flex; flex-direction: column; height: 100vh; }
     </style>
 </head>
 <body>
+    <!-- Fullscreen prompt -->
+    <div class="fs-prompt" id="fsPrompt" onclick="goFullscreen()">
+        <div class="fs-prompt-inner">
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4fa/512.gif" style="width:80px;height:80px">
+            <h2>לחץ למסך מלא</h2>
+            <p>קמפיין תורתך באהבה - תצוגת מסך</p>
+        </div>
+    </div>
+
+    <!-- Alert -->
     <div class="big-alert" id="bigAlert">
         <div class="big-alert-inner">
-            <div class="ba-icon">&#127881;</div>
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f389/512.gif" class="ne-huge">
             <div class="ba-title">תרומה חדשה!</div>
             <div class="ba-amount" id="baAmount"></div>
             <div class="ba-donor" id="baDonor"></div>
@@ -150,36 +208,55 @@
     </div>
 
     <div class="page-layout">
-        <!-- Compact top bar -->
-        <div class="top-bar">
-            <h1>&#11088; קמפיין תורתך באהבה</h1>
-            <div class="top-stats">
-                <div class="ts-item gold"><div class="ts-val" id="dTotalILS">---</div><div class="ts-lbl">&#8362; גויס</div></div>
-                <div class="ts-item blue"><div class="ts-val" id="dTotalUSD">---</div><div class="ts-lbl">$ גויס</div></div>
-                <div class="ts-item green"><div class="ts-val" id="dDonors">---</div><div class="ts-lbl">תורמים</div></div>
-                <div class="ts-item orange"><div class="ts-val" id="dTimer">---</div><div class="ts-lbl">&#9200; נותר</div></div>
+        <!-- Header -->
+        <div class="header-area">
+            <div class="header-top">
+                <h1><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/2b50/512.gif" class="ne"> קמפיין תורתך באהבה</h1>
+                <div class="timer-box">
+                    <div class="t-lbl"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/23f0/512.gif" class="ne"> זמן שנותר</div>
+                    <div class="t-val" id="dTimer">---</div>
+                </div>
             </div>
-            <div class="prog-bar">
-                <div class="prog-outer"><div class="prog-inner" id="dProgress" style="width:0%">0%</div></div>
+            <div class="stats-row">
+                <div class="st-card gold">
+                    <div class="st-ico"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4b0/512.gif" class="ne"></div>
+                    <div class="st-info"><div class="st-val" id="dTotalILS">---</div><div class="st-lbl">גויס &#8362;</div></div>
+                </div>
+                <div class="st-card blue">
+                    <div class="st-ico"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4b5/512.gif" class="ne"></div>
+                    <div class="st-info"><div class="st-val" id="dTotalUSD">---</div><div class="st-lbl">גויס $</div></div>
+                </div>
+                <div class="st-card green">
+                    <div class="st-ico"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f465/512.gif" class="ne"></div>
+                    <div class="st-info"><div class="st-val" id="dDonors">---</div><div class="st-lbl">תורמים</div></div>
+                </div>
+                <div class="st-card purple">
+                    <div class="st-ico"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/2728/512.gif" class="ne"></div>
+                    <div class="st-info"><div class="st-val" id="dMatch">---</div><div class="st-lbl">מצ'ינג</div></div>
+                </div>
+                <div class="prog-card">
+                    <div class="p-lbl">התקדמות הקמפיין</div>
+                    <div class="prog-outer"><div class="prog-inner" id="dProgress" style="width:0%">0%</div></div>
+                </div>
             </div>
         </div>
 
         <!-- Donors grid -->
         <div class="donors-area">
-            <h3>&#128176; תורמים אחרונים</h3>
+            <h3><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4b8/512.gif" class="ne-lg"> תורמים אחרונים</h3>
             <div class="donors-grid" id="donorsFeed">
                 <div style="color:#888;text-align:center;padding:40px;grid-column:1/-1">טוען תורמים...</div>
             </div>
         </div>
 
-        <!-- Charts at bottom - short -->
+        <!-- Charts at bottom -->
         <div class="charts-row">
-            <div class="chart-box">
-                <h4>&#127942; שגרירים - טופ 15</h4>
+            <div class="chart-box wide">
+                <h4><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3c6/512.gif" class="ne"> מתרימים - טופ 15</h4>
                 <div class="cw"><canvas id="dAmbChart"></canvas></div>
             </div>
-            <div class="chart-box">
-                <h4>&#127963; קהילות</h4>
+            <div class="chart-box narrow">
+                <h4><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3d8/512.gif" class="ne"> קהילות</h4>
                 <div class="cw"><canvas id="dCommChart"></canvas></div>
             </div>
         </div>
@@ -192,9 +269,25 @@
         const DONATIONS_API = '/api/public/donations?campaignId=5162&paginate=30&page=1';
 
         let prevDonationIds = new Set();
+        let prevDonationHash = '';
         let campaignEndAt = null;
 
         function fmt(n) { return Math.round(n).toLocaleString('en-US'); }
+
+        // Noto emoji helper
+        function noto(hex, cls) {
+            cls = cls || 'ne';
+            return '<img src="https://fonts.gstatic.com/s/e/notoemoji/latest/' + hex + '/512.gif" class="' + cls + '">';
+        }
+
+        // Fullscreen
+        function goFullscreen() {
+            document.getElementById('fsPrompt').classList.add('hidden');
+            const el = document.documentElement;
+            if (el.requestFullscreen) el.requestFullscreen();
+            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+            else if (el.msRequestFullscreen) el.msRequestFullscreen();
+        }
 
         // Timer
         function updateTimer() {
@@ -236,7 +329,7 @@
         function updateChart(chart, items) {
             chart.data.labels = items.map(f => {
                 let n = f.name || '';
-                return n.length > 22 ? n.substring(0, 22) + '...' : n;
+                return n.length > 18 ? n.substring(0, 18) + '..' : n;
             });
             chart.data.datasets[0].data = items.map(f => (f.statistics || {}).donationsAmount || 0);
             chart.data.datasets[1].data = items.map(f => f.goal || 0);
@@ -292,38 +385,51 @@
             } catch (e) {}
         }
 
-        // Donations feed
+        // Donations feed - only update DOM when data actually changes
+        function buildDonorCard(d, isNew) {
+            const name = d.isAnonymous ? 'אנונימי' : (d.name || 'אנונימי');
+            const sym = d.currency === 'USD' ? '$' : d.currency === 'GBP' ? '£' : '₪';
+            const cls = d.currency === 'USD' ? 'usd' : d.currency === 'GBP' ? 'gbp' : 'ils';
+            const via = d.layerItem && d.layerItem.name ? d.layerItem.name : '';
+            const comment = d.comment || '';
+            const heartEmojis = ['1f496', '1f49b', '1f499', '1f49a', '1f49c', '1f9e1'];
+            const heart = heartEmojis[Math.abs(d.id || 0) % heartEmojis.length];
+
+            return `<div class="donor-sq${isNew ? ' new-card' : ''}" data-id="${d.id}">
+                <div class="ds-top">
+                    <div class="ds-icon">${noto(heart, 'ne')}</div>
+                    <div class="ds-name">${name}</div>
+                </div>
+                <div class="ds-amount ${cls}">${sym}${fmt(d.amount)}</div>
+                ${via ? '<div class="ds-via">דרך: ' + via + '</div>' : ''}
+                ${comment ? '<div class="ds-comment">"' + comment + '"</div>' : ''}
+            </div>`;
+        }
+
         async function fetchDonations() {
             try {
                 const r = await fetch(DONATIONS_API);
                 const data = await r.json();
                 if (!data.docs) return;
 
-                // Check for new donations
+                // Create a hash of current IDs to detect changes
+                const newHash = data.docs.map(d => d.id).join(',');
+                if (newHash === prevDonationHash) return; // No change - skip DOM update
+
+                // Check for new donations (for alert)
                 const newOnes = data.docs.filter(d => !prevDonationIds.has(d.id));
-                if (prevDonationIds.size > 0 && newOnes.length > 0) {
+                const isFirstLoad = prevDonationIds.size === 0;
+                if (!isFirstLoad && newOnes.length > 0) {
                     showBigAlert(newOnes[0]);
                 }
+
                 prevDonationIds = new Set(data.docs.map(d => d.id));
+                prevDonationHash = newHash;
 
+                // Build new HTML - only new cards get animation
+                const newIdSet = new Set(newOnes.map(d => d.id));
                 const feed = document.getElementById('donorsFeed');
-                feed.innerHTML = data.docs.map(d => {
-                    const name = d.isAnonymous ? 'אנונימי' : (d.name || 'אנונימי');
-                    const sym = d.currency === 'USD' ? '$' : d.currency === 'GBP' ? '£' : '₪';
-                    const cls = d.currency === 'USD' ? 'usd' : d.currency === 'GBP' ? 'gbp' : 'ils';
-                    const via = d.layerItem && d.layerItem.name ? d.layerItem.name : '';
-                    const comment = d.comment || '';
-
-                    return `<div class="donor-sq">
-                        <div class="ds-top">
-                            <div class="ds-icon">&#128150;</div>
-                            <div class="ds-name">${name}</div>
-                        </div>
-                        <div class="ds-amount ${cls}">${sym}${fmt(d.amount)}</div>
-                        ${via ? '<div class="ds-via">דרך: ' + via + '</div>' : ''}
-                        ${comment ? '<div class="ds-comment">"' + comment + '"</div>' : ''}
-                    </div>`;
-                }).join('');
+                feed.innerHTML = data.docs.map(d => buildDonorCard(d, !isFirstLoad && newIdSet.has(d.id))).join('');
             } catch (e) {}
         }
 
@@ -341,8 +447,8 @@
         fetchCampaign();
         fetchFundraisers();
         fetchDonations();
-        setInterval(fetchCampaign, 3000);
-        setInterval(fetchFundraisers, 15000);
+        setInterval(fetchCampaign, 5000);
+        setInterval(fetchFundraisers, 20000);
         setInterval(fetchDonations, 8000);
     </script>
 </body>
